@@ -81,13 +81,13 @@ jobs:
       - name: Build package
         working-directory: ${{ runner.temp }}/sdk
         run: |
-          make package/luci-app-naived/compile -j"$(nproc)" V=s
+          make package/feeds/naived/luci-app-naived/compile -j"$(nproc)" V=s
 
       - name: Collect artifacts
         working-directory: ${{ runner.temp }}/sdk
         run: |
           mkdir -p "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}"
-          find bin/packages -type f \( -name 'luci-app-naived*.ipk' -o -name 'luci-i18n-naived*.ipk' \) \
+          find bin/packages -type f \( -name '*naived*.ipk' -o -name 'Packages*' \) \
             -exec cp -v {} "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}/" \;
           (
             cd "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}"
