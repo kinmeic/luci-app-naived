@@ -28,8 +28,8 @@ if nixio.fs.access("/etc/naived/ad.conf") then
 	ad_count = tonumber(luci.sys.exec("cat /etc/naived/ad.conf | wc -l"))
 end
 
-if nixio.fs.access("/etc/naived/china_ssr.txt") then
-	ip_count = tonumber(luci.sys.exec("cat /etc/naived/china_ssr.txt | wc -l"))
+if nixio.fs.access("/etc/naived/china_ip.txt") then
+	ip_count = tonumber(luci.sys.exec("cat /etc/naived/china_ip.txt | wc -l"))
 end
 
 if nixio.fs.access("/etc/naived/applechina.conf") then
@@ -40,48 +40,48 @@ if nixio.fs.access("/etc/naived/netflixip.list") then
 	nfip_count = tonumber(luci.sys.exec("cat /etc/naived/netflixip.list | wc -l"))
 end
 
-if Process_list:find("udp.only.ssr.reudp") then
+if Process_list:find("udp.only.naived.reudp", 1, true) then
 	reudp_run = 1
 end
 
 --[[
-if Process_list:find("tcp.udp.dual.ssr.retcp") then
+if Process_list:find("tcp.udp.dual.naived.retcp", 1, true) then
 	redir_run = 1
 end
 ]]--
 
-if Process_list:find("tcp.only.ssr.retcp") then
+if Process_list:find("tcp.only.naived.retcp", 1, true) then
 	redir_run = 1
 end
 
-if Process_list:find("tcp.udp.ssr.local") then
+if Process_list:find("tcp.udp.naived.local", 1, true) then
 	sock5_run = 1
 end
 
-if Process_list:find("tcp.udp.ssr.retcp") then
+if Process_list:find("tcp.udp.naived.retcp", 1, true) then
 	redir_run = 1
 	reudp_run = 1
 end
 
 --[[
-if Process_list:find("nft.ssr.retcp") then
+if Process_list:find("nft.naived.retcp", 1, true) then
 	redir_run = 1
 end
 ]]--
 
-if Process_list:find("local.ssr.retcp") then
+if Process_list:find("local.naived.retcp", 1, true) then
 	redir_run = 1
 	sock5_run = 1
 end
 
 --[[
-if Process_list:find("local.nft.ssr.retcp") then
+if Process_list:find("local.nft.naived.retcp", 1, true) then
 	redir_run = 1
 	sock5_run = 1
 end
 ]]--
 
-if Process_list:find("local.udp.ssr.retcp") then
+if Process_list:find("local.udp.naived.retcp", 1, true) then
 	reudp_run = 1
 	redir_run = 1
 	sock5_run = 1

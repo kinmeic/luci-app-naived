@@ -5,7 +5,7 @@
 check_run_environment
 
 # 设置 china_ip 变量并检查文件是否存在
-china_ip="${1:-${china_ip:-/etc/naived/china_ssr.txt}}"
+china_ip="${1:-${china_ip:-/etc/naived/china_ip.txt}}"
 [ -f "$china_ip" ] || exit 1
 
 skip_inet="${SKIP_INET:-0}"

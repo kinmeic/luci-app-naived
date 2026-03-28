@@ -19,7 +19,7 @@ uci -q batch <<-EOF
 EOF
 
 rm -rf /etc/config/naived-opkg /etc/naived/*opkg
-touch /etc/naived/china_ssr.txt
+touch /etc/naived/china_ip.txt
 touch /etc/naived/deny.list
 touch /etc/naived/white.list
 touch /etc/naived/black.list

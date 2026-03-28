@@ -79,8 +79,8 @@ end
 -- gfwlist转码至dnsmasq格式
 local function generate_gfwlist(type)
     local domains, domains_map = {}, {}
-    local out = io.open("/tmp/ssr-update." .. type, "w")
-    for line in io.lines("/tmp/ssr-update.tmp") do
+    local out = io.open("/tmp/naived-update." .. type, "w")
+    for line in io.lines("/tmp/naived-update.tmp") do
         if not (string.find(line, comment_pattern) or string.find(line, ip_pattern) or check_excluded_domain(line)) then
             local start, finish, match = string.find(line, domain_pattern)
             if start and not domains_map[match] then
@@ -94,14 +94,14 @@ local function generate_gfwlist(type)
         out:write(string.format("ipset=/%s/%s\n", domain, ipsetname))
     end
     out:close()
-    os.remove("/tmp/ssr-update.tmp")
+    os.remove("/tmp/naived-update.tmp")
 end
 
 -- 更换 Apple dns
 local function generate_apple(type)
 	local domains, domains_map = {}, {}
-	local out = io.open("/tmp/ssr-update." .. type, "w")
-	for line in io.lines("/tmp/ssr-update.tmp") do
+	local out = io.open("/tmp/naived-update." .. type, "w")
+	for line in io.lines("/tmp/naived-update.tmp") do
 		if not (string.find(line, comment_pattern)) then
 			local start, finish, match = string.find(line, domain_pattern)
 			if start and not domains_map[match] then
@@ -117,14 +117,14 @@ local function generate_apple(type)
         end
 	end
 	out:close()
-	os.remove("/tmp/ssr-update.tmp")
+	os.remove("/tmp/naived-update.tmp")
 end
 
 -- adblock转码至dnsmasq格式
 local function generate_adblock(type)
 	local domains, domains_map = {}, {}
-	local out = io.open("/tmp/ssr-update." .. type, "w")
-	for line in io.lines("/tmp/ssr-update.tmp") do
+	local out = io.open("/tmp/naived-update." .. type, "w")
+	for line in io.lines("/tmp/naived-update.tmp") do
 		if not (string.find(line, comment_pattern)) then
 			local start, finish, match = string.find(line, domain_pattern)
 			if start and not domains_map[match] then
@@ -137,7 +137,7 @@ local function generate_adblock(type)
 		out:write(string.format("address=/%s/\n", domain))
 	end
 	out:close()
-	os.remove("/tmp/ssr-update.tmp")
+	os.remove("/tmp/naived-update.tmp")
 end
 
 local log = function(...)
@@ -150,32 +150,32 @@ end
 
 local function update(url, file, type, file2)
 	local Num = 1
-	local refresh_cmd = "curl -sSL --insecure -o /tmp/ssr-update." .. type .. " " .. url
+	local refresh_cmd = "curl -sSL --insecure -o /tmp/naived-update." .. type .. " " .. url
 	local sret = luci.sys.call(refresh_cmd)
 	if sret == 0 then
 		if type == "gfw_data" then
-			local gfwlist = io.open("/tmp/ssr-update." .. type, "r")
+			local gfwlist = io.open("/tmp/naived-update." .. type, "r")
 			local decode = gfwlist:read("*a")
 			if not decode:find("google") then
 				decode = base64_dec(decode)
 			end
 			gfwlist:close()
 			-- 写回gfwlist
-			gfwlist = io.open("/tmp/ssr-update.tmp", "w")
+				gfwlist = io.open("/tmp/naived-update.tmp", "w")
 			gfwlist:write(decode)
 			gfwlist:close()
 			generate_gfwlist(type)
 			Num = 2
 		end
 		if type == "apple_data" then
-			local apple = io.open("/tmp/ssr-update." .. type, "r")
+				local apple = io.open("/tmp/naived-update." .. type, "r")
 			local decode = apple:read("*a")
 			if not decode:find("apple") then
 				decode = base64_dec(decode)
 			end
 			apple:close()
 			-- 写回applechina
-			apple = io.open("/tmp/ssr-update.tmp", "w")
+				apple = io.open("/tmp/naived-update.tmp", "w")
 			apple:write(decode)
 			apple:close()
 			if new_appledns and new_appledns ~= "" then
@@ -183,20 +183,20 @@ local function update(url, file, type, file2)
 			end
 		end
 		if type == "ad_data" then
-			local adblock = io.open("/tmp/ssr-update." .. type, "r")
+				local adblock = io.open("/tmp/naived-update." .. type, "r")
 			local decode = adblock:read("*a")
 			if decode:find("address=") then
 				adblock:close()
 			else
 				adblock:close()
 				-- 写回adblock
-				adblock = io.open("/tmp/ssr-update.tmp", "w")
+					adblock = io.open("/tmp/naived-update.tmp", "w")
 				adblock:write(decode)
 				adblock:close()
 				generate_adblock(type)
 			end
 		end
-		local new_md5 = luci.sys.exec("echo -n $([ -f '/tmp/ssr-update." .. type .. "' ] && md5sum /tmp/ssr-update." .. type .. " | awk '{print $1}')")
+		local new_md5 = luci.sys.exec("echo -n $([ -f '/tmp/naived-update." .. type .. "' ] && md5sum /tmp/naived-update." .. type .. " | awk '{print $1}')")
 		local old_md5 = luci.sys.exec("echo -n $([ -f '" .. file .. "' ] && md5sum " .. file .. " | awk '{print $1}')")
 		if new_md5 == old_md5 then
 			if args then
@@ -205,16 +205,16 @@ local function update(url, file, type, file2)
 				log("你已经是最新数据，无需更新！")
 			end
 		else
-			icount = luci.sys.exec("cat /tmp/ssr-update." .. type .. " | wc -l")
-			luci.sys.exec("cp -f /tmp/ssr-update." .. type .. " " .. file)
+			icount = luci.sys.exec("cat /tmp/naived-update." .. type .. " | wc -l")
+			luci.sys.exec("cp -f /tmp/naived-update." .. type .. " " .. file)
 			if file2 then
-				luci.sys.exec("cp -f /tmp/ssr-update." .. type .. " " .. file2)
+				luci.sys.exec("cp -f /tmp/naived-update." .. type .. " " .. file2)
 			end
 			if type == "gfw_data" or type == "ad_data" then
 				luci.sys.call("/usr/share/naived/gfw2ipset.sh")
 			else
 				if luci.sys.call("command -v ipset >/dev/null 2>&1") == 0 then
-					luci.sys.call("/usr/share/naived/chinaipset.sh " .. TMP_PATH .. "/china_ssr.txt")
+						luci.sys.call("/usr/share/naived/chinaipset.sh " .. TMP_PATH .. "/china_ip.txt")
 				end
 			end
 			if args then
@@ -230,7 +230,7 @@ local function update(url, file, type, file2)
 			log("更新失败！")
 		end
 	end
-	os.remove("/tmp/ssr-update." .. type)
+	os.remove("/tmp/naived-update." .. type)
 end
 
 if args then
@@ -239,7 +239,7 @@ if args then
 		os.exit(0)
 	end
 	if args == "ip_data" then
-		update(uci:get_first("naived", "global", "chnroute_url"), "/etc/naived/china_ssr.txt", args, TMP_PATH .. "/china_ssr.txt")
+			update(uci:get_first("naived", "global", "chnroute_url"), "/etc/naived/china_ip.txt", args, TMP_PATH .. "/china_ip.txt")
 		os.exit(0)
 	end
 	if args == "apple_data" then
@@ -258,7 +258,7 @@ else
 	log("正在更新【GFW列表】数据库")
 	update(uci:get_first("naived", "global", "gfwlist_url"), "/etc/naived/gfw_list.conf", "gfw_data", TMP_DNSMASQ_PATH .. "/gfw_list.conf")
 	log("正在更新【国内IP段】数据库")
-	update(uci:get_first("naived", "global", "chnroute_url"), "/etc/naived/china_ssr.txt", "ip_data", TMP_PATH .. "/china_ssr.txt")
+	update(uci:get_first("naived", "global", "chnroute_url"), "/etc/naived/china_ip.txt", "ip_data", TMP_PATH .. "/china_ip.txt")
 	if uci:get_first("naived", "global", "apple_optimization", "0") == "1" then
 		log("正在更新【Apple域名】数据库")
 		update(uci:get_first("naived", "global", "apple_url"), "/etc/naived/applechina.conf", "apple_data", TMP_DNSMASQ_PATH .. "/applechina.conf")

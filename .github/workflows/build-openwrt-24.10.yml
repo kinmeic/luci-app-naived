@@ -1,0 +1,102 @@
+name: Build OpenWrt 24.10 Packages
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact_name: openwrt-24.10-x86-64
+            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            target_label: x86_64
+          - artifact_name: openwrt-24.10-aarch64-cortex-a53
+            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/rockchip/armv8/openwrt-sdk-24.10.0-rockchip-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            target_label: aarch64_cortex-a53
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            file \
+            flex \
+            bison \
+            g++ \
+            gawk \
+            gcc-multilib \
+            gettext \
+            git \
+            libncurses5-dev \
+            libssl-dev \
+            python3 \
+            python3-distutils \
+            rsync \
+            tar \
+            unzip \
+            wget \
+            zlib1g-dev \
+            zstd
+
+      - name: Download and extract OpenWrt SDK
+        run: |
+          mkdir -p "$RUNNER_TEMP/sdk"
+          wget -qO "$RUNNER_TEMP/openwrt-sdk.tar.zst" "${{ matrix.sdk_url }}"
+          tar --zstd -xf "$RUNNER_TEMP/openwrt-sdk.tar.zst" -C "$RUNNER_TEMP/sdk" --strip-components=1
+
+      - name: Configure feeds
+        working-directory: ${{ runner.temp }}/sdk
+        run: |
+          echo "src-link naived $GITHUB_WORKSPACE" >> feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Configure package selection
+        working-directory: ${{ runner.temp }}/sdk
+        run: |
+          cat >> .config <<'EOF'
+          CONFIG_PACKAGE_luci-app-naived=y
+          CONFIG_PACKAGE_luci-app-naived_Nftables_Transparent_Proxy=y
+          CONFIG_PACKAGE_luci-app-naived_INCLUDE_ChinaDNS_NG=y
+          CONFIG_PACKAGE_luci-app-naived_INCLUDE_DNSPROXY=y
+          CONFIG_PACKAGE_luci-app-naived_INCLUDE_NaiveProxy=y
+          EOF
+          make defconfig
+
+      - name: Build package
+        working-directory: ${{ runner.temp }}/sdk
+        run: |
+          make package/luci-app-naived/compile -j"$(nproc)" V=s
+
+      - name: Collect artifacts
+        working-directory: ${{ runner.temp }}/sdk
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}"
+          find bin/packages -type f \( -name 'luci-app-naived*.ipk' -o -name 'luci-i18n-naived*.ipk' \) \
+            -exec cp -v {} "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}/" \;
+          (
+            cd "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}"
+            sha256sum *.ipk > sha256sums.txt
+          )
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: artifacts/${{ matrix.target_label }}
+          if-no-files-found: error

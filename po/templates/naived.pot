@@ -621,7 +621,7 @@ msgstr ""
 msgid "Google Public DNS (8.8.8.8)"
 msgstr ""
 
-msgid "Grant UCI access for luci-app-ssr-plus"
+msgid "Grant UCI access for luci-app-naived"
 msgstr ""
 
 msgid "Gun"

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2017 openwrt-ssr
+# Copyright (C) 2017 openwrt-naived
 # Copyright (C) 2017 yushi studio <ywb94@qq.com>
 #
 # This is free software, licensed under the GNU General Public License v3.
@@ -27,42 +27,42 @@ while [ "1" == "1" ]; do #死循环
 	sleep 000030s
 	#redir tcp
 	if [ "$redir_tcp_process" -gt 0 ]; then
-		icount=$(busybox ps -w | grep ssr-retcp | grep -v grep | wc -l)
+		icount=$(busybox ps -w | grep naived-retcp | grep -v grep | wc -l)
 		if [ "$icount" == 0 ]; then
-			logger -t "$NAME" "ssrplus redir tcp error.restart!"
-			echolog "ssrplus redir tcp error.restart!"
+			logger -t "$NAME" "naived redir tcp error.restart!"
+			echolog "naived redir tcp error.restart!"
 			/etc/init.d/naived restart
 			exit 0
 		fi
 	fi
 	#redir udp
 	if [ "$redir_udp_process" -gt 0 ]; then
-		icount=$(busybox ps -w | grep ssr-reudp | grep -v grep | wc -l)
+		icount=$(busybox ps -w | grep naived-reudp | grep -v grep | wc -l)
 		if [ "$icount" == 0 ]; then
-			logger -t "$NAME" "ssrplus redir udp error.restart!"
-			echolog "ssrplus redir udp error.restart!"
+			logger -t "$NAME" "naived redir udp error.restart!"
+			echolog "naived redir udp error.restart!"
 			/etc/init.d/naived restart
 			exit 0
 		fi
 	fi
 	#server
 	if [ "$server_process_count" -gt 0 ]; then
-		icount=$(busybox ps -w | grep ssr-server | grep -v grep | wc -l)
+		icount=$(busybox ps -w | grep naived-server | grep -v grep | wc -l)
 		if [ "$icount" -lt "$server_process_count" ]; then #如果进程挂掉就重启它
-			logger -t "$NAME" "ssrplus server error.restart!"
-			echolog "ssrplus server error.restart!"
-			kill -9 $(busybox ps -w | grep ssr-server | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+			logger -t "$NAME" "naived server error.restart!"
+			echolog "naived server error.restart!"
+			kill -9 $(busybox ps -w | grep naived-server | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 			/etc/init.d/naived restart
 			exit 0
 		fi
 	fi
 	#localsocks
 	if [ "$local_process" -gt 0 ]; then
-		icount=$(busybox ps -w | grep ssr-local | grep -v grep | wc -l)
+		icount=$(busybox ps -w | grep naived-local | grep -v grep | wc -l)
 		if [ "$icount" -lt "$local_process" ]; then #如果进程挂掉就重启它
 			logger -t "$NAME" "global socks server error.restart!"
 			echolog "global socks server error.restart!"
-			kill -9 $(busybox ps -w | grep ssr-local | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+			kill -9 $(busybox ps -w | grep naived-local | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 			/etc/init.d/naived restart
 			exit 0
 		fi
@@ -79,7 +79,7 @@ while [ "1" == "1" ]; do #死循环
 		fi
 	#dnsproxy
 	elif [ "$pdnsd_process" -eq 5 ]; then
-		icount=$(busybox ps -w | grep -e ssrplus-dns -e "dnsproxy -l 127.0.0.1 -p $tmp_dns_port" | grep -v grep | wc -l)
+		icount=$(busybox ps -w | grep -e naived-dns -e "dnsproxy -l 127.0.0.1 -p $tmp_dns_port" | grep -v grep | wc -l)
 		if [ "$icount" -lt 1 ]; then #如果进程挂掉就重启它
 			logger -t "$NAME" "dnsproxy $dnsserver tunnel error.restart!"
 			echolog "dnsproxy $dnsserver tunnel error.restart!"
@@ -145,7 +145,7 @@ while [ "1" == "1" ]; do #死循环
 		fi
 	#chinadns-ng(proxy)
 	elif [ "$pdnsd_process" -eq 6 ]; then
-		icount=$(busybox ps -w | grep -e ssrplus-dns -e "chinadns-ng -b 127.0.0.1 -l $tmp_dns_port" | grep -v grep | wc -l)
+		icount=$(busybox ps -w | grep -e naived-dns -e "chinadns-ng -b 127.0.0.1 -l $tmp_dns_port" | grep -v grep | wc -l)
 		if [ "$icount" -lt 1 ]; then #如果进程挂掉就重启它
 			logger -t "$NAME" "chinadns-ng $dnsserver tunnel error.restart!"
 			echolog "chinadns-ng $dnsserver tunnel error.restart!"
@@ -178,7 +178,7 @@ while [ "1" == "1" ]; do #死循环
 		fi
 	fi
 	#chinadns-ng(china)
-	if [ "$(uci -q get "dhcp.@dnsmasq[0]._unused_ssrp_changed")" = "1" ]; then
+	if [ "$(uci -q get "dhcp.@dnsmasq[0]._unused_naived_changed")" = "1" ]; then
 		icount=$(busybox ps -w | grep $TMP_BIN_PATH/chinadns-ng | grep -v grep | wc -l)
 		if [ "$icount" -lt 1 ]; then #如果进程挂掉就重启它
 			logger -t "$NAME" "chinadns-ng tunnel error.restart!"

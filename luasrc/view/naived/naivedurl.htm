@@ -5,24 +5,24 @@ local map = self.map
 <script type="text/javascript">
 //<![CDATA[
 
-function import_ssr_url(btn, urlname, sid) {
+function import_share_url(btn, urlname, sid) {
 	var s = document.getElementById(urlname + '-status');
 	if (!s) return false;
-	var ssrurl = prompt("<%:Paste sharing link here%>", "");
-	if (ssrurl == null || ssrurl == "") {
+	var share_url = prompt("<%:Paste sharing link here%>", "");
+	if (share_url == null || share_url == "") {
 		s.innerHTML = "<font style=\'color:red\'><%:User cancelled.%></font>";
 		return false;
 	}
 	s.innerHTML = "";
-	ssrurl = ssrurl.replace(/&([a-zA-Z]+);/g, '&').replace(/\s*#\s*/, '#').trim();
-	var ssu = ssrurl.split('://');
+	share_url = share_url.replace(/&([a-zA-Z]+);/g, '&').replace(/\s*#\s*/, '#').trim();
+	var scheme_parts = share_url.split('://');
 	var event = document.createEvent("HTMLEvents");
 	event.initEvent("change", true, true);
 
-	switch (ssu[0]) {
+	switch (scheme_parts[0]) {
 	case "naive":
 	case "naiveproxy":
-		var url0 = (ssu[1] || "");
+		var url0 = (scheme_parts[1] || "");
 		var param = "";
 
 		// 先分离 #（alias）
@@ -87,7 +87,7 @@ function import_ssr_url(btn, urlname, sid) {
 		return false;
 	case "socks5":
 	case "socks":
-		var url0 = (ssu[1] || "");
+		var url0 = (scheme_parts[1] || "");
 		var param = "";
 
 		// 先分离 #（alias）
@@ -156,6 +156,6 @@ function import_ssr_url(btn, urlname, sid) {
 }
 //]]>
 </script>
-<input type="button" class="btn cbi-button cbi-button-apply" value="<%:Import%>" onclick="return import_ssr_url(this, '<%=self.option%>', '<%=self.value%>')" />
+<input type="button" class="btn cbi-button cbi-button-apply" value="<%:Import%>" onclick="return import_share_url(this, '<%=self.option%>', '<%=self.value%>')" />
 <span id="<%=self.option%>-status"></span>
 <%+cbi/valuefooter%>
