@@ -45,6 +45,7 @@ jobs:
             libncurses5-dev \
             libssl-dev \
             python3 \
+            python3-pyelftools \
             python3-setuptools \
             rsync \
             tar \
@@ -62,9 +63,20 @@ jobs:
       - name: Configure feeds
         working-directory: ${{ runner.temp }}/sdk
         run: |
-          echo "src-link naived $GITHUB_WORKSPACE" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+
+      - name: Inject package into SDK
+        working-directory: ${{ runner.temp }}/sdk
+        run: |
+          rm -rf package/luci-app-naived
+          mkdir -p package/luci-app-naived
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'artifacts' \
+            --exclude '.DS_Store' \
+            "$GITHUB_WORKSPACE"/ package/luci-app-naived/
 
       - name: Configure package selection
         working-directory: ${{ runner.temp }}/sdk
@@ -81,7 +93,7 @@ jobs:
       - name: Build package
         working-directory: ${{ runner.temp }}/sdk
         run: |
-          make package/feeds/naived/luci-app-naived/compile -j"$(nproc)" V=s
+          make package/luci-app-naived/compile -j"$(nproc)" V=s
 
       - name: Collect artifacts
         working-directory: ${{ runner.temp }}/sdk
