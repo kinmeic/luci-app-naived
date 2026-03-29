@@ -95,8 +95,9 @@ jobs:
       - name: Configure feeds
         working-directory: ${{ runner.temp }}/sdk
         run: |
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          ./scripts/feeds update packages luci
+          ./scripts/feeds install -a -p packages
+          ./scripts/feeds install -a -p luci
 
       - name: Inject package into SDK
         working-directory: ${{ runner.temp }}/sdk
