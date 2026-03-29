@@ -84,9 +84,8 @@ jobs:
       - name: Configure feeds
         working-directory: ${{ runner.temp }}/sdk
         run: |
-          ./scripts/feeds update packages luci
-          ./scripts/feeds install -a -p packages
-          ./scripts/feeds install -a -p luci
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
       - name: Inject package into SDK
         working-directory: ${{ runner.temp }}/sdk
@@ -104,13 +103,6 @@ jobs:
         working-directory: ${{ runner.temp }}/sdk
         run: |
           cat >> .config <<'EOF'
-          CONFIG_PACKAGE_liblua=y
-          CONFIG_PACKAGE_lua=y
-          CONFIG_PACKAGE_liblucihttp=y
-          CONFIG_PACKAGE_liblucihttp-lua=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-lib-base=y
-          CONFIG_PACKAGE_luci-lua-runtime=y
           CONFIG_PACKAGE_luci-app-naived=y
           CONFIG_PACKAGE_luci-app-naived_Nftables_Transparent_Proxy=y
           CONFIG_PACKAGE_luci-app-naived_INCLUDE_ChinaDNS_NG=y
