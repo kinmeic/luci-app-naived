@@ -2,13 +2,29 @@ name: Build OpenWrt 24.10 Packages
 
 on:
   workflow_dispatch:
+    inputs:
+      make_jobs:
+        description: Build parallelism. Supports auto, 4, or -j4.
+        required: false
+        default: auto
+      publish_release:
+        description: Publish build artifacts to a GitHub release.
+        required: false
+        type: boolean
+        default: false
+      release_tag:
+        description: Release tag to create or update when publish_release is enabled.
+        required: false
+        default: ""
   push:
     branches:
       - main
+    tags:
+      - "v*"
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -27,6 +43,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Resolve build parallelism
+        id: jobs
+        shell: bash
+        run: |
+          input="${{ github.event.inputs.make_jobs || 'auto' }}"
+          if [ -z "$input" ] || [ "$input" = "auto" ]; then
+            echo "value=-j$(nproc)" >> "$GITHUB_OUTPUT"
+          elif [[ "$input" =~ ^-j[0-9]+$ ]]; then
+            echo "value=$input" >> "$GITHUB_OUTPUT"
+          elif [[ "$input" =~ ^[0-9]+$ ]]; then
+            echo "value=-j$input" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unsupported make_jobs input: $input" >&2
+            exit 1
+          fi
 
       - name: Install build prerequisites
         run: |
@@ -93,7 +125,7 @@ jobs:
       - name: Build package
         working-directory: ${{ runner.temp }}/sdk
         run: |
-          make package/luci-app-naived/compile -j"$(nproc)" V=s
+          make package/luci-app-naived/compile ${{ steps.jobs.outputs.value }} V=s
 
       - name: Collect artifacts
         working-directory: ${{ runner.temp }}/sdk
@@ -112,3 +144,58 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: artifacts/${{ matrix.target_label }}
           if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-22.04
+    if: |
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.event.inputs.publish_release == 'true' &&
+       github.event.inputs.release_tag != '')
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Prepare release bundles
+        shell: bash
+        run: |
+          mkdir -p release-bundles
+          for dir in release-artifacts/*; do
+            [ -d "$dir" ] || continue
+            name="$(basename "$dir")"
+            (
+              cd release-artifacts
+              zip -qr "../release-bundles/${name}.zip" "$name"
+            )
+          done
+          (
+            cd release-bundles
+            sha256sum *.zip > sha256sums.txt
+          )
+
+      - name: Resolve release tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "value=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          tag="${{ steps.release_tag.outputs.value }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" release-bundles/* --clobber
+          else
+            gh release create "$tag" release-bundles/* \
+              --title "$tag" \
+              --notes "OpenWrt 24.10 package build artifacts."
+          fi
