@@ -7,18 +7,13 @@ on:
         description: Build parallelism. Supports auto, 4, or -j4.
         required: false
         default: auto
-      publish_release:
-        description: Publish build artifacts to a GitHub release.
-        required: false
-        type: boolean
-        default: false
       release_tag:
-        description: Release tag to create or update when publish_release is enabled.
+        description: Optional release tag override.
         required: false
         default: ""
   push:
     branches:
-      - main
+      - master
     tags:
       - "v*"
   pull_request:
@@ -29,16 +24,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - artifact_name: openwrt-24.10-x86-64
-            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
-            target_label: x86_64
-          - artifact_name: openwrt-24.10-aarch64-cortex-a53
-            sdk_url: https://downloads.openwrt.org/releases/24.10.0/targets/rockchip/armv8/openwrt-sdk-24.10.0-rockchip-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst
-            target_label: aarch64_cortex-a53
+    env:
+      ARTIFACT_NAME: openwrt-24.10-x86-64
+      SDK_URL: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+      TARGET_LABEL: x86_64
 
     steps:
       - name: Checkout repository
@@ -89,7 +78,7 @@ jobs:
       - name: Download and extract OpenWrt SDK
         run: |
           mkdir -p "$RUNNER_TEMP/sdk"
-          wget -qO "$RUNNER_TEMP/openwrt-sdk.tar.zst" "${{ matrix.sdk_url }}"
+          wget -qO "$RUNNER_TEMP/openwrt-sdk.tar.zst" "$SDK_URL"
           tar --zstd -xf "$RUNNER_TEMP/openwrt-sdk.tar.zst" -C "$RUNNER_TEMP/sdk" --strip-components=1
 
       - name: Configure feeds
@@ -138,29 +127,25 @@ jobs:
       - name: Collect artifacts
         working-directory: ${{ runner.temp }}/sdk
         run: |
-          mkdir -p "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}"
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/$TARGET_LABEL"
           find bin/packages -type f \( -name '*naived*.ipk' -o -name 'Packages*' \) \
-            -exec cp -v {} "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}/" \;
+            -exec cp -v {} "$GITHUB_WORKSPACE/artifacts/$TARGET_LABEL/" \;
           (
-            cd "$GITHUB_WORKSPACE/artifacts/${{ matrix.target_label }}"
+            cd "$GITHUB_WORKSPACE/artifacts/$TARGET_LABEL"
             sha256sum *.ipk > sha256sums.txt
           )
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: artifacts/${{ matrix.target_label }}
+          name: ${{ env.ARTIFACT_NAME }}
+          path: artifacts/${{ env.TARGET_LABEL }}
           if-no-files-found: error
 
   release:
     needs: build
     runs-on: ubuntu-22.04
-    if: |
-      startsWith(github.ref, 'refs/tags/v') ||
-      (github.event_name == 'workflow_dispatch' &&
-       github.event.inputs.publish_release == 'true' &&
-       github.event.inputs.release_tag != '')
+    if: github.event_name != 'pull_request'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -193,8 +178,10 @@ jobs:
         run: |
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             echo "value=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-          else
+          elif [ -n "${{ github.event.inputs.release_tag }}" ]; then
             echo "value=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=openwrt24.10-x86_64-latest" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create or update release
