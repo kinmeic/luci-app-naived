@@ -3,8 +3,8 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=luci-app-naived
 LUCI_PKGARCH:=all
 PKG_NAME:=luci-app-naived
-PKG_VERSION:=246
-PKG_RELEASE:=3
+PKG_VERSION:=247
+PKG_RELEASE:=1
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_Nftables_Transparent_Proxy \
