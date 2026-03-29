@@ -104,8 +104,8 @@ jobs:
         working-directory: ${{ runner.temp }}/sdk
         run: |
           cat >> .config <<'EOF'
-          CONFIG_PACKAGE_liblua5.4=y
-          CONFIG_PACKAGE_lua5.4=y
+          CONFIG_PACKAGE_liblua=y
+          CONFIG_PACKAGE_lua=y
           CONFIG_PACKAGE_liblucihttp=y
           CONFIG_PACKAGE_liblucihttp-lua=y
           CONFIG_PACKAGE_luci-base=y
