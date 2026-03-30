@@ -418,7 +418,7 @@ gen_config_file() { #server1 type2 code3 local_port4 socks_port5 chain6 threads5
 		esac
 		;;
 	socks5)
-		/usr/share/naived/genred2config.sh $config_file $2 $mode $4 \
+		sh /usr/share/naived/genred2config.sh $config_file $2 $mode $4 \
 			"$(uci_get_by_name $1 server)" \
 			"$(uci_get_by_name $1 server_port)" \
 			"$(uci_get_by_name $1 auth_enable 0)" \
@@ -984,8 +984,8 @@ start_rules() {
 		mv "$BACKUP_FILE" "$PERSIST_FILE"
 		rm -rf "$BACKUP_DIR"
 	fi
-	/usr/share/naived/gfw2ipset.sh
-	/usr/bin/naived-rules \
+	sh /usr/share/naived/gfw2ipset.sh
+	sh /usr/bin/naived-rules \
 		-s "$server" \
 		-l "$local_port" \
 		-S "$udp_server" \
@@ -1095,15 +1095,15 @@ stop() {
 		mkdir -p "$BACKUP_DIR"
 		mv "$PERSIST_FILE" "$BACKUP_FILE"
 	fi
-	/usr/bin/naived-rules -K
+	sh /usr/bin/naived-rules -K
 	local OLD_SERVER="$(uci_get_by_type global old_global_server nil)"
 	local NEW_SERVER="$(uci_get_by_type global global_server nil)"
 	if [ "$OLD_SERVER" != "nil" ] && [ "$NEW_SERVER" != "nil" ] && [ "$OLD_SERVER" != "$NEW_SERVER" ]; then
-		/usr/bin/naived-rules -X
+		sh /usr/bin/naived-rules -X
 	fi
 	uci delete naived.@global[0].old_global_server 2>/dev/null
 	uci commit naived
-	/usr/bin/naived-rules -f
+	sh /usr/bin/naived-rules -f
 	local srulecount=0
 	# nftables / fw4
 	#local srulecount=$(nft list ruleset 2>/dev/null | grep -c 'SSR-SERVER-RULE')

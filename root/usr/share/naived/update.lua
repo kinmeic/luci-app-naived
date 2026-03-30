@@ -211,10 +211,10 @@ local function update(url, file, type, file2)
 				luci.sys.exec("cp -f /tmp/naived-update." .. type .. " " .. file2)
 			end
 			if type == "gfw_data" or type == "ad_data" then
-				luci.sys.call("/usr/share/naived/gfw2ipset.sh")
+				luci.sys.call("sh /usr/share/naived/gfw2ipset.sh")
 			else
 				if luci.sys.call("command -v ipset >/dev/null 2>&1") == 0 then
-						luci.sys.call("/usr/share/naived/chinaipset.sh " .. TMP_PATH .. "/china_ip.txt")
+						luci.sys.call("sh /usr/share/naived/chinaipset.sh " .. TMP_PATH .. "/china_ip.txt")
 				end
 			end
 			if args then

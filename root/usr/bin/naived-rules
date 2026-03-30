@@ -275,7 +275,7 @@ ipset_nft() {
 	fi
 
 	# Create necessary collections
-	for setname in china gmlan fplan bplan whitelist blacklist netflix music; do
+	for setname in china gmlan fplan bplan whitelist blacklist netflix music gfwlist oversea; do
 		if ! $NFT list set inet ss_spec $setname >/dev/null 2>&1; then
 			$NFT add set inet ss_spec $setname '{ type ipv4_addr; flags interval; auto-merge; }' 2>/dev/null
 		else
@@ -285,7 +285,7 @@ ipset_nft() {
 
 	# Bulk import china ip list safely (avoid huge single element limitation)
 	if [ -f "$IGNORE_LIST" ]; then
-		SKIP_INET=1 /usr/share/naived/chinaipset.sh "$IGNORE_LIST"
+		SKIP_INET=1 sh /usr/share/naived/chinaipset.sh "$IGNORE_LIST"
 	fi
 
 	# Bulk import xhttp ip list into nft whitelist (server + shunt)
@@ -666,7 +666,7 @@ tp_rule_nft() {
 
 	# Bulk import china ip list safely (avoid huge single element limitation)
 	if [ -f "$IGNORE_LIST" ]; then
-		SKIP_INET=2 /usr/share/naived/chinaipset.sh "$IGNORE_LIST"
+		SKIP_INET=2 sh /usr/share/naived/chinaipset.sh "$IGNORE_LIST"
 	fi
 
 	# Bulk import xhttp ip list into nft whitelist (server + shunt)
