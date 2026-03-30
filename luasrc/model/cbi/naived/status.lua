@@ -40,7 +40,7 @@ if nixio.fs.access("/etc/naived/netflixip.list") then
 	nfip_count = tonumber(luci.sys.exec("cat /etc/naived/netflixip.list | wc -l"))
 end
 
-if Process_list:find("udp.only.naived.reudp", 1, true) then
+if Process_list:find("udp-only-naived-reudp", 1, true) then
 	reudp_run = 1
 end
 
@@ -50,15 +50,15 @@ if Process_list:find("tcp.udp.dual.naived.retcp", 1, true) then
 end
 ]]--
 
-if Process_list:find("tcp.only.naived.retcp", 1, true) then
+if Process_list:find("tcp-only-naived-retcp", 1, true) then
 	redir_run = 1
 end
 
-if Process_list:find("tcp.udp.naived.local", 1, true) then
+if Process_list:find("tcp-udp-naived-local", 1, true) then
 	sock5_run = 1
 end
 
-if Process_list:find("tcp.udp.naived.retcp", 1, true) then
+if Process_list:find("tcp-udp-naived-retcp", 1, true) then
 	redir_run = 1
 	reudp_run = 1
 end
@@ -69,7 +69,7 @@ if Process_list:find("nft.naived.retcp", 1, true) then
 end
 ]]--
 
-if Process_list:find("local.naived.retcp", 1, true) then
+if Process_list:find("local-naived-retcp", 1, true) then
 	redir_run = 1
 	sock5_run = 1
 end
@@ -81,7 +81,7 @@ if Process_list:find("local.nft.naived.retcp", 1, true) then
 end
 ]]--
 
-if Process_list:find("local.udp.naived.retcp", 1, true) then
+if Process_list:find("local-udp-naived-retcp", 1, true) then
 	reudp_run = 1
 	redir_run = 1
 	sock5_run = 1
