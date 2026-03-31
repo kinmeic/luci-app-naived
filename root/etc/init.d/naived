@@ -12,17 +12,17 @@ PERSIST_DIR="/usr/share/nftables.d/ruleset-post"
 PERSIST_FILE="$PERSIST_DIR/99-naived.nft"
 BACKUP_DIR="/etc/naived/naived-persist"
 BACKUP_FILE="$BACKUP_DIR/99-naived.save"
-# 设置 DNSMASQ_CONF_DIR 和 TMP_DNSMASQ_PATH
+# Configure DNSMASQ_CONF_DIR and TMP_DNSMASQ_PATH
 if [ -f /etc/openwrt_release ]; then
-    # 获取默认的 DNSMASQ 配置 ID
+    # Get the default DNSMASQ config ID
     DEFAULT_DNSMASQ_CFGID="$(uci -q show "dhcp.@dnsmasq[0]" | awk 'NR==1 {split($0, conf, /[.=]/); print conf[2]}')"
-    # 从 conf-dir 行中提取配置目录路径
+    # Extract the config directory path from conf-dir
     if [ -f "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID" ]; then
         DNSMASQ_CONF_DIR="$(awk -F '=' '/^conf-dir=/ {print $2}' "/tmp/etc/dnsmasq.conf.$DEFAULT_DNSMASQ_CFGID")"
     else
         DNSMASQ_CONF_DIR="/tmp/dnsmasq.d"
     fi
-    # 设置 TMP_DNSMASQ_PATH，并去除路径末尾的斜杠
+    # Set TMP_DNSMASQ_PATH and trim the trailing slash
     TMP_DNSMASQ_PATH="${DNSMASQ_CONF_DIR%*/}/dnsmasq-naived.d"
 fi
 
@@ -114,7 +114,7 @@ get_host_ip() {
 clean_log() {
 	local logsnum=$(cat $LOG_FILE 2>/dev/null | wc -l)
 	[ "$logsnum" -gt 1000 ] && {
-		echo "$(date "+%Y-%m-%d %H:%M:%S") 日志文件过长，清空处理！" >$LOG_FILE
+		echo "$(date "+%Y-%m-%d %H:%M:%S") Log file too long, truncating." >$LOG_FILE
 	}
 }
 
@@ -178,11 +178,11 @@ ln_start_bin() {
 			ln -s "${file_func}" "${TMP_BIN_PATH}/${ln_name}" >/dev/null 2>&1
 			file_func="${TMP_BIN_PATH}/${ln_name}"
 		}
-		[ -x "${file_func}" ] || echolog "$(readlink ${file_func}) 没有执行权限，无法启动：${file_func} $*"
+		[ -x "${file_func}" ] || echolog "$(readlink ${file_func}) is not executable, unable to start:${file_func} $*"
 	fi
 	#echo "${file_func} $*" >&2
 	[ -x "${file_func}" ] || {
-		echolog "找不到 ${file_func}，无法启动..."
+		echolog "${file_func} not found, unable to start..."
 		echolog "-----------end------------"
 		_exit 2
 	}
@@ -200,7 +200,7 @@ check_run_environment() {
 	HAS_FW4=$(command -v fw4 >/dev/null && echo 1 || echo 0)
 	HAS_NFT=$(command -v nft >/dev/null && echo 1 || echo 0)
 
-	# 直接设置使用 nftables
+	# Always use nftables
 	USE_TABLES="nftables"
 
 	local dep_list="kmod-nft-socket kmod-nft-tproxy kmod-nft-nat"
@@ -210,12 +210,12 @@ check_run_environment() {
 
 	local v_num=$(echo "$dnsmasq_ver" | tr -cd '0-9')
 	if [ "${v_num:-0}" -lt 290 ]; then
-		echolog "提示：Dnsmasq ($dnsmasq_ver) 低于 2.90，建议升级以增强稳定性。"
+		echolog "Notice: Dnsmasq ($dnsmasq_ver) is below 2.90; upgrading is recommended for stability."
 	fi
 	local pkg
 	for pkg in $dep_list; do
 		if [ ! -s "${file_path}/${pkg}${file_ext}" ]; then
-			echolog "警告：${USE_TABLES} 透明代理缺失基础依赖 ${pkg}！"
+			echolog "Warning: ${USE_TABLES} transparent proxy is missing required dependency ${pkg}!"
 		fi
 	done
 }
@@ -265,14 +265,14 @@ start_dns() {
 				cleaned_file="$TMP_PATH/cleaned_dns.list"
 				temp_file="$TMP_PATH/temp_dns.list"
 				> "$cleaned_file"
-				# 清理输入文件并去重
+				# Sanitize input and deduplicate entries
 				while IFS= read -r line || [ -n "$line" ]; do
 				    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 					[ -z "$line" ] && continue
 					echo "$line" | grep -qE '^#' && continue
 					echo "$line" >> "$cleaned_file"
 				done < "/etc/naived/dnsproxy_dns.list"
-				# 获取清理后文件的MD5
+				# Compute the MD5 of the cleaned file
 				cleaned_md5=$(md5sum "$cleaned_file" | awk '{print $1}')
 				if [ ! -f "$dnsproxy_dnsserver_file" ]; then
 				    cp "$cleaned_file" "$dnsproxy_dnsserver_file"
@@ -280,14 +280,14 @@ start_dns() {
 				    target_md5=$(md5sum "$dnsproxy_dnsserver_file" | awk '{print $1}')
 					if [ "$cleaned_md5" != "$target_md5" ]; then
 					    > "$temp_file"
-					    # 保留目标文件中也存在于清理文件的记录（去重）
+					    # Keep entries that still exist in the cleaned file (deduplicated)
 					    while IFS= read -r line; do
 						    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 						    if grep -qixF "$line" "$cleaned_file" && ! grep -qixF "$line" "$temp_file"; then
 							    echo "$line" >> "$temp_file"
 						    fi
 						done < "$dnsproxy_dnsserver_file"
-						# 添加清理文件中有但目标文件没有的记录（去重）
+						# Add entries that are only present in the cleaned file (deduplicated)
 						while IFS= read -r line; do
 						    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 							if ! grep -qixF "$line" "$temp_file"; then
@@ -315,15 +315,15 @@ start_dns() {
 		6)
 			local chinadns_ng_proto="$(uci_get_by_type global chinadns_ng_proto)"
 			local chinadns_ng_dns=""
-			# 遍历每个 DNS 服务器
-			IFS=','  # 设置分隔符为逗号
+			# Iterate over each DNS server
+			IFS=','  # Use comma as the separator
 			for chinadns_ng_server in $dnsserver; do
-				# 处理单个服务器地址
+				# Process a single server address
 				local chinadns_ng_ip="${chinadns_ng_server%%:*}"
 				local chinadns_ng_port="${chinadns_ng_server##*:}"
 				[ "$chinadns_ng_ip" = "$chinadns_ng_port" ] && chinadns_ng_port="53"
 				chinadns_ng_tls_port="853"
-				# 根据协议类型格式化服务器地址
+				# Format the server address based on protocol
 				case "$chinadns_ng_proto" in
 					"none")
             					chinadns_ng_server="${chinadns_ng_ip}#${chinadns_ng_port}"
@@ -335,10 +335,10 @@ start_dns() {
             					chinadns_ng_server="${chinadns_ng_proto}://${chinadns_ng_ip}#${chinadns_ng_port}"
             					;;
 				esac
-				# 添加到参数列表
+				# Append to the argument list
 				chinadns_ng_dns="${chinadns_ng_dns} -t ${chinadns_ng_server}"
 			done
-			unset IFS  # 恢复默认分隔符
+			unset IFS  # Restore the default separator
 			dnsserver="$chinadns_ng_dns"
 			ln_start_bin $(first_type chinadns-ng) chinadns-ng -b 127.0.0.1 -l $tmp_dns_port -l $dns_port -p 3 -d gfw $dnsserver -N --filter-qtype 64,65 -f -r --cache 4096 --cache-stale 86400 --cache-refresh 20
 			echolog "ChinaDNS-NG query and cache Started!"
@@ -369,15 +369,15 @@ start_dns() {
 	if [ "$(uci_get_by_type global apple_optimization 1)" == "1" ]; then
 		local new_appledns="$(uci_get_by_type global apple_dns)"
 		if [ -n "$new_appledns" ]; then		
-			sed -i 's/[[:space:]]//g' /etc/naived/applechina.conf #去除所有空白字符
+			sed -i 's/[[:space:]]//g' /etc/naived/applechina.conf # Remove all whitespace
 			local old_appledns=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' /etc/naived/applechina.conf | sort -u)
 			if [ -n "$old_appledns" ] && [ "$old_appledns" != "$new_appledns" ]; then
 				sed -i "s,$(printf '%s' "$old_appledns"),$(printf '%s' "$new_appledns"),g" /etc/naived/applechina.conf
 			fi
 		fi
-		echolog "Apple 域名中国大陆 CDN 的 优化规则正在加载。"
+		echolog "Loading Apple mainland China CDN optimization rules."
 		cp -f /etc/naived/applechina.conf $TMP_DNSMASQ_PATH/
-		echolog "Apple 域名中国大陆 CDN 的 优化规则加载完毕。"
+		echolog "Apple mainland China CDN optimization rules loaded."
 	fi
 }
 
@@ -472,14 +472,14 @@ shunt_dns_command() {
 			cleaned_file="$TMP_PATH/cleaned_dns_servers.list"
 			temp_file="$TMP_PATH/temp_dns_servers.list"
 			> "$cleaned_file"
-			# 清理输入文件并去重
+			# Sanitize input and deduplicate entries
 			while IFS= read -r line || [ -n "$line" ]; do
 			    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 				[ -z "$line" ] && continue
 				echo "$line" | grep -qE '^#' && continue
 				echo "$line" >> "$cleaned_file"
 			done < "/etc/naived/dnsproxy_dns.list"
-			# 获取清理后文件的MD5
+			# Compute the MD5 of the cleaned file
 			cleaned_md5=$(md5sum "$cleaned_file" | awk '{print $1}')
 			if [ ! -f "$shunt_dnsproxy_dnsserver_file" ]; then
 			    cp "$cleaned_file" "$shunt_dnsproxy_dnsserver_file"
@@ -487,14 +487,14 @@ shunt_dns_command() {
 			    target_md5=$(md5sum "$shunt_dnsproxy_dnsserver_file" | awk '{print $1}')
 				if [ "$cleaned_md5" != "$target_md5" ]; then
 				    > "$temp_file"
-					# 保留目标文件中也存在于清理文件的记录（去重）
+					# Keep entries that still exist in the cleaned file (deduplicated)
 					while IFS= read -r line; do
 					    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 						if grep -qixF "$line" "$cleaned_file" && ! grep -qixF "$line" "$temp_file"; then
 						    echo "$line" >> "$temp_file"
 						fi
 					done < "$shunt_dnsproxy_dnsserver_file"
-					# 添加清理文件中有但目标文件没有的记录（去重）
+					# Add entries that are only present in the cleaned file (deduplicated)
 					while IFS= read -r line; do
 					    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 						if ! grep -qixF "$line" "$temp_file"; then
@@ -521,15 +521,15 @@ shunt_dns_command() {
 	5)
 		local chinadns_ng_shunt_proto="$(uci_get_by_type global chinadns_ng_shunt_proto)"
 		local chinadns_ng_shunt_dns=""
-		# 遍历每个 DNS 服务器
-		IFS=','  # 设置分隔符为逗号
+		# Iterate over each DNS server
+		IFS=','  # Use comma as the separator
 		for chinadns_ng_shunt_server in $shunt_dnsserver; do
-			# 处理单个服务器地址
+			# Process a single server address
 			local chinadns_ng_shunt_ip="${chinadns_ng_shunt_server%%:*}"
 			local chinadns_ng_shunt_port="${chinadns_ng_shunt_server##*:}"
 			[ "$chinadns_ng_shunt_ip" = "$chinadns_ng_shunt_port" ] && chinadns_ng_shunt_port="53"
 			chinadns_ng_shunt_tls_port="853"
-			# 根据协议类型格式化服务器地址
+			# Format the server address based on protocol
 			case "$chinadns_ng_shunt_proto" in
 				"none")
             				chinadns_ng_shunt_server="${chinadns_ng_shunt_ip}#${chinadns_ng_shunt_port}"
@@ -541,12 +541,12 @@ shunt_dns_command() {
             				chinadns_ng_shunt_server="${chinadns_ng_shunt_proto}://${chinadns_ng_shunt_ip}#${chinadns_ng_shunt_port}"
             				;;
 			esac
-			# 添加到参数列表
+			# Append to the argument list
 			chinadns_ng_shunt_dns="${chinadns_ng_shunt_dns} -t ${chinadns_ng_shunt_server}"
 		done
-		unset IFS  # 恢复默认分隔符
+		unset IFS  # Restore the default separator
 		shunt_dnsserver="$chinadns_ng_shunt_dns"
-		# 启动 chinadns-ng
+		# Start chinadns-ng
 		ln_start_bin $(first_type chinadns-ng) chinadns-ng -b 127.0.0.1 -l $tmp_port -l $tmp_shunt_dns_port -p 3 -d gfw $shunt_dnsserver -N --filter-qtype 64,65 -f -r --cache 4096 --cache-stale 86400 --cache-refresh 20
 		echolog "ChinaDNS-NG shunt query and cache Started!"
 		;;
@@ -555,22 +555,24 @@ shunt_dns_command() {
 
 shunt_dns_config_file_port() {
     if [ "$LOCAL_SERVER" == "$SHUNT_SERVER" ]; then
-        # NetFlix 和 全局socks 节点相同
+        # Netflix and the global SOCKS node are the same
         if [ "$(uci_get_by_type socks5_proxy socks5_auth nil)" != "noauth" ]; then
-            # 全局socks 有密码，NetFlix 不能使用 auth 验证，需更换为新端口并使用无密码的 socks 配置用于分流
-            # 新增NetFlix dns 使用端口
+            # The global SOCKS node uses authentication, so Netflix shunt must use a new
+            # unauthenticated SOCKS port instead of auth-based access.
+            # Allocate a dedicated Netflix DNS port.
             local port=$tmp_shunt_local_port
             jq --arg port "$port" '.inbounds |= .[0:1] + [{"protocol":"socks","port":($port | tonumber),"settings":{"udp":true,"auth":"noauth"}}] + .[1:]' "$shunt_config_file" > "$shunt_config_file.tmp" && mv "$shunt_config_file.tmp" $shunt_config_file
-            echo $port  # 返回端口号
-            return 0  # 成功返回
+            echo $port  # Return the allocated port
+            return 0  # Success
         else
             sed -i -e '/"mixed"/d' $shunt_config_file
         fi
     else
-        # NetFlix 和 全局 socks 节点不相同
+        # Netflix and the global SOCKS node are different
         if [ "$(uci_get_by_type socks5_proxy socks5_auth nil)" != "noauth" ]; then
-            # 全局socks 有密码，NetFlix不能使用auth验证，需设置为无密码的socks配置用于分流
-            # 删除 NetFlix dns 端口密码验证
+            # The global SOCKS node uses authentication, so Netflix shunt needs an
+            # unauthenticated SOCKS configuration.
+            # Remove password-based auth for the Netflix DNS port.
             sed -i \
                    -e '/"mixed"/d' \
                    -e 's/"auth"\s*:\s*"password"/\"auth\": \"noauth\"/g' \
@@ -579,9 +581,9 @@ shunt_dns_config_file_port() {
             sed -i -e '/"mixed"/d' $shunt_config_file
         fi
     fi
-    # 使用传入的端口
-    echo $1  # 返回传入的端口号
-    return 0  # 成功返回
+    # Use the provided port
+    echo $1  # Return the provided port
+    return 0  # Success
 }
 
 start_shunt() {
@@ -701,10 +703,10 @@ load_config() {
 		GLOBAL_SERVER=$switch_server
 	fi
 	if [ "$(uci_get_by_type socks5_proxy enabled 0)" == "1" ]; then
-		# 只有开启 全局socks 才需要取值
+		# Only read the value when global SOCKS is enabled
 		LOCAL_SERVER=$(uci_get_by_type socks5_proxy server nil)
 	else
-		# 没有开启 设置为 nil
+		# Set to nil when the feature is disabled
 		LOCAL_SERVER=nil
 	fi
 	if [ "$GLOBAL_SERVER" == "nil" ]; then
@@ -716,10 +718,10 @@ load_config() {
 	fi
 	UDP_RELAY_SERVER=$(uci_get_by_type global udp_relay_server nil)
 	if [ "$(uci_get_by_type global netflix_enable 0)" == "1" ]; then
-		# 只有开启 NetFlix分流 才需要取值
+		# Only read the value when Netflix shunt is enabled
 		SHUNT_SERVER=$(uci_get_by_type global netflix_server nil)
 	else
-		# 没有开启 设置为 nil
+		# Set to nil when the feature is disabled
 		SHUNT_SERVER=nil
 	fi
 	#tcp_config_file=$TMP_PATH/tcp-udp-dual-naived-retcp.json
@@ -855,17 +857,17 @@ start_server() {
 		fi
 		# nftables / fw4
 		cat <<-'EOF' >>"$FWI"
-			# 确保表存在
+			# Ensure the table exists
 			if nft list table inet fw4 >/dev/null 2>&1; then
-				# 如果不存在 SSR-SERVER-RULE 链，则创建
+				# Create the SSR-SERVER-RULE chain if it does not exist
 				if ! nft list chain inet fw4 SSR-SERVER-RULE >/dev/null 2>&1; then
 					nft add chain inet fw4 SSR-SERVER-RULE 2>/dev/null
 				fi
-				# 从 input 链跳转到 SSR-SERVER-RULE（如果未添加）
+				# Jump from the input chain to SSR-SERVER-RULE if missing
 				if ! nft list chain inet fw4 input | grep -q 'jump SSR-SERVER-RULE'; then
 					nft insert rule inet fw4 input jump SSR-SERVER-RULE comment \"SSR Server Input Hook\" 2>/dev/null
 				fi
-				# 已存在则清空链
+				# Flush the chain if it already exists
 				nft flush chain inet fw4 SSR-SERVER-RULE 2>/dev/null
 			fi
 		EOF
@@ -900,7 +902,7 @@ start_xhttp_addr() {
 	local xhttp_addr_file="/etc/naived/xhttp_address.txt"
 	local tmp_file="/tmp/.xhttp_addr.tmp"
 
-	# 收集所有 xhttp_extra 地址，去掉空行并去重排序
+	# Collect all xhttp_extra addresses, remove blanks, and sort uniquely
 	{
 		for sec in "$GLOBAL_SERVER" "$SHUNT_SERVER" "$UDP_RELAY_SERVER"; do
 			local extra
@@ -910,14 +912,14 @@ start_xhttp_addr() {
 		done
 	} | grep -v '^$' | sort -u > "$tmp_file"
 
-	# 如果没有 xhttp_extra 地址，删除旧文件并退出
+	# Remove the old file and exit when no xhttp_extra addresses are present
 	if [ ! -s "$tmp_file" ]; then
 		[ -f "$xhttp_addr_file" ] && rm -f "$xhttp_addr_file"
 		rm -f "$tmp_file"
 		return 0
 	fi
 
-	# 比较 MD5 判断 xhttp_extra 地址是否有变化
+	# Compare MD5 hashes to detect xhttp_extra address changes
 	local md5_new md5_old
 	md5_new=$(md5sum "$tmp_file" | awk '{print $1}')
 	if [ -f "$xhttp_addr_file" ]; then
@@ -926,7 +928,7 @@ start_xhttp_addr() {
 		md5_old=""
 	fi
 
-	# MD5 不同更新 xhttp_extra 地址文件
+	# Update the xhttp_extra address file when the MD5 differs
 	if [ "$md5_new" != "$md5_old" ]; then
 		mv -f "$tmp_file" "$xhttp_addr_file"
 		logger -t naived-xhttp "xhttp_address.txt updated"
@@ -961,7 +963,7 @@ start_rules() {
 		esac
 	}
 	if [ "$(uci_get_by_type global dports)" == "3" ]; then
-		local custom_ports=$(uci_get_by_name $GLOBAL_SERVER custom_ports)  #  custom_ports 存储了用户自定义的端口
+		local custom_ports=$(uci_get_by_name $GLOBAL_SERVER custom_ports)  # custom_ports stores user-defined ports
 		if [ -n "$custom_ports" ]; then
 			local proxyport="-m multiport --dports $custom_ports"
 		fi
@@ -1019,7 +1021,7 @@ start() {
 		start_xhttp_addr
 		start_rules
 		start_dns
-		# Restore ipsets after rules creation
+		# Restore ipsets after rule creation
 		if [ "$HAS_IPSET" -eq 1 ]; then
 			for setname in gfwlist china blacklist whitelist netflix; do
 				[ "$setname" = "gfwlist" ] && [ "$run_mode" != "gfw" ] && continue
@@ -1031,11 +1033,11 @@ start() {
 		add_cron
 		start_switch
 	else
-		echolog "未启动主节点，禁止连接的域名正在加载。"
+		echolog "Main node not started, loading blocked-domain rules."
 		cat /etc/naived/deny.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/address=\/&\//" >$TMP_DNSMASQ_PATH/denylist.conf
-		echolog "禁止连接的域名加载完毕。"
+		echolog "Blocked-domain rules loaded."
 		if [ "$(uci_get_by_type global adblock 0)" == "1" ]; then
-			echolog "未启动主节点，广告过滤正在加载。"
+			echolog "Main node not started, loading ad-block rules."
 			cp -f /etc/naived/ad.conf $TMP_DNSMASQ_PATH/
 			if [ -f "$TMP_DNSMASQ_PATH/ad.conf" ]; then
 				# Optimize: Batch filter using grep instead of looping sed
@@ -1051,12 +1053,12 @@ start() {
 					fi
 				done
 			fi
-			echolog "广告过滤加载完毕。"
+			echolog "Ad-block rules loaded."
 		fi
 	fi
 	/etc/init.d/dnsmasq restart >/dev/null 2>&1
 	check_server
-	# Save current server for nftables persistence
+	# Save the current server for nftables persistence
 	local CURRENT_SERVER="$(uci_get_by_type global global_server nil)"
 	if [ "$CURRENT_SERVER" != "nil" ]; then
 		uci set naived.@global[0].old_global_server="$CURRENT_SERVER"
@@ -1070,7 +1072,7 @@ start() {
 }
 
 boot() {
-	echolog "boot！"
+	echolog "boot!"
 	mkdir -p /var/run /var/lock /var/log $DNSMASQ_CONF_DIR $TMP_BIN_PATH $TMP_DNSMASQ_PATH
 	start
 }
@@ -1079,7 +1081,7 @@ stop() {
 	unlock
 	set_lock
 	check_run_environment
-	# Save ipsets before stopping to persist transparent proxy state
+	# Save ipsets before stopping to preserve transparent proxy state
 	if [ "$HAS_IPSET" -eq 1 ]; then
 		mkdir -p /tmp/naived_save
 		local run_mode="$(uci_get_by_type global run_mode)"
@@ -1090,7 +1092,7 @@ stop() {
 			ipset save $setname > /tmp/naived_save/$setname.save 2>/dev/null
 		done
 	fi
-	# Save nft rules before stopping to persist transparent proxy state
+	# Save nft rules before stopping to preserve transparent proxy state
 	if [ -f "$PERSIST_FILE" ]; then
 		mkdir -p "$BACKUP_DIR"
 		mv "$PERSIST_FILE" "$BACKUP_FILE"

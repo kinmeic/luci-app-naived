@@ -147,22 +147,12 @@ jobs:
         with:
           path: release-artifacts
 
-      - name: Prepare release bundles
+      - name: Prepare release files
         shell: bash
         run: |
-          mkdir -p release-bundles
-          for dir in release-artifacts/*; do
-            [ -d "$dir" ] || continue
-            name="$(basename "$dir")"
-            (
-              cd release-artifacts
-              zip -qr "../release-bundles/${name}.zip" "$name"
-            )
-          done
-          (
-            cd release-bundles
-            sha256sum *.zip > sha256sums.txt
-          )
+          mkdir -p release-files
+          find release-artifacts -type f \( -name '*.ipk' -o -name 'sha256sums.txt' \) \
+            -exec cp -f {} release-files/ \;
 
       - name: Resolve release tag
         id: release_tag
@@ -184,9 +174,9 @@ jobs:
         run: |
           tag="${{ steps.release_tag.outputs.value }}"
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" release-bundles/* --clobber
+            gh release upload "$tag" release-files/* --clobber
           else
-            gh release create "$tag" release-bundles/* \
+            gh release create "$tag" release-files/* \
               --title "$tag" \
               --notes "OpenWrt 24.10 package build artifacts."
           fi

@@ -8,7 +8,7 @@ f.reset = false
 f.submit = false
 f:append(Template("naived/log"))
 
--- 自定义 log 函数
+-- Custom log helper
 function log(...)
     local result = os.date("%Y-%m-%d %H:%M:%S: ") .. table.concat({...}, " ")
     local f, err = io.open("/var/log/naived.log", "a")
@@ -18,7 +18,7 @@ function log(...)
     end
 end
 
--- 创建备份与恢复表单
+-- Create the backup and restore form
 fb = SimpleForm('backup-restore')
 fb.reset = false
 fb.submit = false
@@ -29,7 +29,7 @@ s = fb:section(SimpleSection, translate("Backup and Restore"), translate("Backup
 s.anonymous = true
 s:append(Template("naived/backup_restore"))
 
--- 定义备份目标文件和目录
+-- Define backup target files and directories
 local backup_targets = {
     files = {
         "/etc/config/naived"
@@ -43,10 +43,10 @@ local file_path = '/tmp/naived_upload.tar.gz'
 local temp_dir = '/tmp/naived_bak'
 local fd
 
--- 处理文件上传
+-- Handle uploaded files
 luci.http.setfilehandler(function(meta, chunk, eof)
     if not fd and meta and meta.name == "ulfile" and chunk then
-        -- 初始化上传处理
+        -- Initialize upload handling
         luci.sys.call("rm -rf " .. temp_dir)
         nixio.fs.remove(file_path)
         fd = nixio.open(file_path, "w")
@@ -61,39 +61,39 @@ luci.http.setfilehandler(function(meta, chunk, eof)
         fd:close()
         fd = nil
         if nixio.fs.access(file_path) then
-            log(" * naived 配置文件上传成功…")  -- 使用自定义的 log 函数
+            log(" * naived configuration archive uploaded successfully...")  -- Use the custom log helper
             luci.sys.call("mkdir -p " .. temp_dir)
 
             if luci.sys.call("tar -xzf " .. file_path .. " -C " .. temp_dir) == 0 then
-                -- 处理文件还原
+                -- Restore regular files
                 for _, target in ipairs(backup_targets.files) do
                     local temp_file = temp_dir .. target
                     if nixio.fs.access(temp_file) then
                         luci.sys.call(string.format("cp -f '%s' '%s'", temp_file, target))
-                        log(" * 文件 " .. target .. " 还原成功…")  -- 使用自定义的 log 函数
+                        log(" * File " .. target .. " restored successfully...")  -- Use the custom log helper
                     end
                 end
 
-                -- 处理目录还原
+                -- Restore directories
                 for _, target in ipairs(backup_targets.dirs) do
                     local temp_dir_path = temp_dir .. target
                     if nixio.fs.access(temp_dir_path) then
                         luci.sys.call(string.format("cp -rf '%s'/* '%s/'", temp_dir_path, target))
-                        log(" * 目录 " .. target .. " 还原成功…")  -- 使用自定义的 log 函数
+                        log(" * Directory " .. target .. " restored successfully...")  -- Use the custom log helper
                     end
                 end
 
-                log(" * naived 配置还原成功…")  -- 使用自定义的 log 函数
-                log(" * 重启 naived 服务中…\n")  -- 使用自定义的 log 函数
+                log(" * naived configuration restored successfully...")  -- Use the custom log helper
+                log(" * Restarting the naived service...\n")  -- Use the custom log helper
                 luci.sys.call('/etc/init.d/naived restart > /dev/null 2>&1 &')
             else
-                log(" * naived 配置文件解压失败，请重试！")  -- 使用自定义的 log 函数
+                log(" * Failed to extract the naived configuration archive, please try again!")  -- Use the custom log helper
             end
         else
-            log(" * naived 配置文件上传失败，请重试！")  -- 使用自定义的 log 函数
+            log(" * Failed to upload the naived configuration archive, please try again!")  -- Use the custom log helper
         end
 
-        -- 清理临时文件
+        -- Clean up temporary files
         luci.sys.call("rm -rf " .. temp_dir)
         nixio.fs.remove(file_path)
     end

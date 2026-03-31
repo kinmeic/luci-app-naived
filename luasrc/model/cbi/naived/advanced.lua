@@ -1,21 +1,21 @@
 local m, s, o
 local uci = require "luci.model.uci".cursor()
 
--- 获取 LAN IP 地址
+-- Get the LAN IP address
 function lanip()
 	local lan_ip
 
-	-- 尝试从 UCI 直接读取
+	-- Try reading it directly from UCI
 	lan_ip = luci.sys.exec("uci -q get network.lan.ipaddr 2>/dev/null | awk -F'/' '{print $1}' | tr -d '\\n'")
 
-	-- 尝试从 LAN 接口信息中读取（优先 ifname，再 fallback 到 device）
+	-- Try reading it from LAN interface info (prefer ifname, fall back to device)
 	if not lan_ip or lan_ip == "" then
 		lan_ip = luci.sys.exec([[
 ip -4 addr show $(uci -q -p /tmp/state get network.lan.ifname || uci -q -p /tmp/state get network.lan.device) 2>/dev/null \
   | grep -w 'inet' | awk '{print $2}' | cut -d'/' -f1 | grep -v '^127\.' | head -n1 | tr -d '\n']])
 	end
 
-	-- 取任意一个 global IPv4 地址
+	-- Fall back to any global IPv4 address
 	if not lan_ip or lan_ip == "" then
 		lan_ip = luci.sys.exec([[
 ip -4 addr show scope global 2>/dev/null \

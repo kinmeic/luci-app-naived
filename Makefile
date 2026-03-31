@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=luci-app-naived
 LUCI_PKGARCH:=all
 PKG_NAME:=luci-app-naived
-PKG_VERSION:=250
+PKG_VERSION:=251
 PKG_RELEASE:=1
 
 PKG_CONFIG_DEPENDS:= \

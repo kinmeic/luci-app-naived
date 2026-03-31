@@ -12,12 +12,12 @@ local m, s, o
 
 local sid = arg[1]
 
--- 确保正确判断程序是否存在
+-- Ensure program existence checks are accurate
 local function is_finded(e)
 	return luci.sys.exec(string.format('type -t -p "%s" 2>/dev/null', e)) ~= ""
 end
 
--- 默认的保存并应用行为
+-- Default save-and-apply behavior
 local function apply_redirect(m)
 	local tmp_uci_file = "/etc/config/" .. "naived" .. "_redirect"
 	if m.redirect and m.redirect ~= "" then
@@ -53,7 +53,7 @@ if m.uci:get("naived", sid) ~= "servers" then
 	luci.http.redirect(m.redirect)
 	return
 end
--- 保存&应用成功后跳转到节点列表
+-- Redirect to the node list after Save & Apply succeeds
 apply_redirect(m)
 
 -- [[ Servers Setting ]]--

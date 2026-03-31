@@ -74,7 +74,7 @@
 </style>
 
 <script>
-    // JavaScript 版本的 url 函数
+    // JavaScript version of the url helper
     function url(...args) {
         let url = "/cgi-bin/luci/admin/services/naived";
         for (let i = 0; i < args.length; i++) {
@@ -85,25 +85,25 @@
         return url;
     }
 
-    // 上传按钮点击事件
+    // Upload button click handler
     document.getElementById("upload-btn").addEventListener("click", function() {
         document.getElementById("upload-modal").style.display = "block";
     });
 
-    // 关闭上传模态框
+    // Close the upload modal
     document.getElementById("upload-close").addEventListener("click", function() {
         document.getElementById("upload-modal").style.display = "none";
     });
 
-    // 备份下载函数
+    // Backup download helper
     function dl_backup(btn) {
-        fetch(url("backup"), {  // 使用 JavaScript 版本的 url 函数
+        fetch(url("backup"), {  // use the JavaScript version of the url helper
             method: 'POST',
             credentials: 'same-origin'
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error("备份失败！");
+                throw new Error("Backup failed!");
             }
             const filename = response.headers.get("X-Backup-Filename");
             if (!filename) {
@@ -126,20 +126,20 @@
         .catch(error => alert(error.message));
     }
 
-    // 恢复出厂设置
+    // Restore factory defaults
     function do_reset(btn) {
         if (confirm("<%: Do you want to restore the client to default settings?%>")) {
             setTimeout(function () {
                 if (confirm("<%: Are you sure you want to restore the client to default settings?%>")) {
-                    // 清理日志
+                    // Clear logs
                     var xhr1 = new XMLHttpRequest();
-                    xhr1.open("GET", url("clear_log"), true);  // 使用 JavaScript 版本的 url 函数
+                    xhr1.open("GET", url("clear_log"), true);  // use the JavaScript version of the url helper
                     xhr1.send();
-                    // 恢复出厂
+                    // Reset settings
                     var xhr2 = new XMLHttpRequest();
-                    xhr2.open("GET", url("reset"), true);  // 使用 JavaScript 版本的 url 函数
+                    xhr2.open("GET", url("reset"), true);  // use the JavaScript version of the url helper
                     xhr2.send();
-                    // 处理响应
+                    // Handle the response
                     xhr2.onload = function() {
                         if (xhr2.status === 200) {
                             window.location.href = url("reset");

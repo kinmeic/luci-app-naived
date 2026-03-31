@@ -25,7 +25,7 @@ function import_share_url(btn, urlname, sid) {
 		var url0 = (scheme_parts[1] || "");
 		var param = "";
 
-		// 先分离 #（alias）
+		// Split off the # alias first
 		var hashIndex = url0.indexOf("#");
 		if (hashIndex >= 0) {
 			param = url0.substring(hashIndex + 1);
@@ -35,7 +35,7 @@ function import_share_url(btn, urlname, sid) {
 		// URL decode
 		url0 = decodeURIComponent(url0);
 
-		// 解析 username:password@server:port
+		// Parse username:password@server:port
 		var atIndex = url0.indexOf("@");
 		if (atIndex < 0) {
 			s.innerHTML = "<font style='color:red'><%:Invalid naiveproxy URL format.%></font>";
@@ -45,14 +45,14 @@ function import_share_url(btn, urlname, sid) {
 		var userInfo = url0.substring(0, atIndex);
 		var serverPart = url0.substring(atIndex + 1);
 
-		// 处理可能的 scheme (https://)
+		// Handle an optional scheme (https://)
 		if (serverPart.indexOf("https://") === 0) {
 			serverPart = serverPart.substring(8);
 		} else if (serverPart.indexOf("http://") === 0) {
 			serverPart = serverPart.substring(7);
 		}
 
-		// 分离 server:port
+		// Split server:port
 		var colonIndex = serverPart.lastIndexOf(":");
 		if (colonIndex < 0) {
 			s.innerHTML = "<font style='color:red'><%:Invalid naiveproxy URL format.%></font>";
@@ -62,7 +62,7 @@ function import_share_url(btn, urlname, sid) {
 		var server = serverPart.substring(0, colonIndex);
 		var port = serverPart.substring(colonIndex + 1);
 
-		// 分离 username:password
+		// Split username:password
 		var userColonIndex = userInfo.indexOf(":");
 		if (userColonIndex < 0) {
 			s.innerHTML = "<font style='color:red'><%:Invalid naiveproxy URL format.%></font>";
@@ -72,7 +72,7 @@ function import_share_url(btn, urlname, sid) {
 		var username = userInfo.substring(0, userColonIndex);
 		var password = userInfo.substring(userColonIndex + 1);
 
-		// 设置值
+		// Assign values
 		document.getElementsByName('cbid.naived.' + sid + '.type')[0].value = "naiveproxy";
 		document.getElementsByName('cbid.naived.' + sid + '.type')[0].dispatchEvent(event);
 		document.getElementsByName('cbid.naived.' + sid + '.server')[0].value = server;
@@ -90,7 +90,7 @@ function import_share_url(btn, urlname, sid) {
 		var url0 = (scheme_parts[1] || "");
 		var param = "";
 
-		// 先分离 #（alias）
+		// Split off the # alias first
 		var hashIndex = url0.indexOf("#");
 		if (hashIndex >= 0) {
 			param = url0.substring(hashIndex + 1);
@@ -100,10 +100,10 @@ function import_share_url(btn, urlname, sid) {
 		// URL decode
 		url0 = decodeURIComponent(url0);
 
-		// 解析 username:password@server:port
+		// Parse username:password@server:port
 		var atIndex = url0.indexOf("@");
 		if (atIndex < 0) {
-			// 无认证
+			// No authentication
 			var serverPart = url0;
 			var colonIndex = serverPart.lastIndexOf(":");
 			if (colonIndex < 0) {
@@ -118,7 +118,7 @@ function import_share_url(btn, urlname, sid) {
 			document.getElementsByName('cbid.naived.' + sid + '.server')[0].value = server;
 			document.getElementsByName('cbid.naived.' + sid + '.server_port')[0].value = port;
 		} else {
-			// 有认证
+			// Authentication enabled
 			var userInfo = url0.substring(0, atIndex);
 			var serverPart = url0.substring(atIndex + 1);
 

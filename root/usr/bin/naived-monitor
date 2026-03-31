@@ -17,7 +17,7 @@ GLOBAL_SERVER=$(uci_get_by_type global global_server)
 server=$(uci_get_by_name $GLOBAL_SERVER server)
 server_port=$(uci_get_by_name $GLOBAL_SERVER server_port)
 
-while [ "1" == "1" ]; do #死循环
+while [ "1" == "1" ]; do # Infinite loop
 	sleep 000030s
 	#redir tcp
 	if [ "$redir_tcp_process" -gt 0 ]; then
@@ -42,7 +42,7 @@ while [ "1" == "1" ]; do #死循环
 	#server
 	if [ "$server_process_count" -gt 0 ]; then
 		icount=$(busybox ps -w | grep naived-server | grep -v grep | wc -l)
-		if [ "$icount" -lt "$server_process_count" ]; then #如果进程挂掉就重启它
+		if [ "$icount" -lt "$server_process_count" ]; then # Restart if the process exits unexpectedly
 			logger -t "$NAME" "naived server error.restart!"
 			echolog "naived server error.restart!"
 			kill -9 $(busybox ps -w | grep naived-server | grep -v grep | awk '{print $1}') >/dev/null 2>&1
@@ -53,7 +53,7 @@ while [ "1" == "1" ]; do #死循环
 	#localsocks
 	if [ "$local_process" -gt 0 ]; then
 		icount=$(busybox ps -w | grep naived-local | grep -v grep | wc -l)
-		if [ "$icount" -lt "$local_process" ]; then #如果进程挂掉就重启它
+		if [ "$icount" -lt "$local_process" ]; then # Restart if the process exits unexpectedly
 			logger -t "$NAME" "global socks server error.restart!"
 			echolog "global socks server error.restart!"
 			kill -9 $(busybox ps -w | grep naived-local | grep -v grep | awk '{print $1}') >/dev/null 2>&1
@@ -64,7 +64,7 @@ while [ "1" == "1" ]; do #死循环
 	#dns2tcp
 	if [ "$pdnsd_process" -eq 1 ]; then
 		icount=$(busybox ps -w | grep $TMP_BIN_PATH/dns2tcp | grep -v grep | wc -l)
-		if [ "$icount" -lt 1 ]; then #如果进程挂掉就重启它
+		if [ "$icount" -lt 1 ]; then # Restart if the process exits unexpectedly
 			logger -t "$NAME" "dns2tcp tunnel error.restart!"
 			echolog "dns2tcp tunnel error.restart!"
 			dnsserver=$(uci_get_by_type global tunnel_forward 8.8.4.4:53)
@@ -74,7 +74,7 @@ while [ "1" == "1" ]; do #死循环
 	#dnsproxy
 	elif [ "$pdnsd_process" -eq 5 ]; then
 		icount=$(busybox ps -w | grep -e naived-dns -e "dnsproxy -l 127.0.0.1 -p $tmp_dns_port" | grep -v grep | wc -l)
-		if [ "$icount" -lt 1 ]; then #如果进程挂掉就重启它
+		if [ "$icount" -lt 1 ]; then # Restart if the process exits unexpectedly
 			logger -t "$NAME" "dnsproxy $dnsserver tunnel error.restart!"
 			echolog "dnsproxy $dnsserver tunnel error.restart!"
 			local dnsproxy_dnsserver="$(uci_get_by_type global parse_method)"
@@ -92,14 +92,14 @@ while [ "1" == "1" ]; do #死循环
 				cleaned_file="$TMP_PATH/cleaned_dns.list"
 				temp_file="$TMP_PATH/temp_dns.list"
 				> "$cleaned_file"
-				# 清理输入文件并去重
+				# Sanitize input and deduplicate entries
 				while IFS= read -r line || [ -n "$line" ]; do
 				    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 					[ -z "$line" ] && continue
 					echo "$line" | grep -qE '^#' && continue
 					echo "$line" >> "$cleaned_file"
 				done < "/etc/naived/dnsproxy_dns.list"
-				# 获取清理后文件的MD5
+				# Compute the MD5 of the cleaned file
 				cleaned_md5=$(md5sum "$cleaned_file" | awk '{print $1}')
 				if [ ! -f "$dnsproxy_dnsserver_file" ]; then
 				    cp "$cleaned_file" "$dnsproxy_dnsserver_file"
@@ -107,14 +107,14 @@ while [ "1" == "1" ]; do #死循环
 				    target_md5=$(md5sum "$dnsproxy_dnsserver_file" | awk '{print $1}')
 					if [ "$cleaned_md5" != "$target_md5" ]; then
 					    > "$temp_file"
-					    # 保留目标文件中也存在于清理文件的记录（去重）
+					    # Keep entries that still exist in the cleaned file (deduplicated)
 					    while IFS= read -r line; do
 						    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 						    if grep -qixF "$line" "$cleaned_file" && ! grep -qixF "$line" "$temp_file"; then
 							    echo "$line" >> "$temp_file"
 						    fi
 						done < "$dnsproxy_dnsserver_file"
-						# 添加清理文件中有但目标文件没有的记录（去重）
+						# Add entries that are only present in the cleaned file (deduplicated)
 						while IFS= read -r line; do
 						    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
 							if ! grep -qixF "$line" "$temp_file"; then
@@ -140,7 +140,7 @@ while [ "1" == "1" ]; do #死循环
 	#chinadns-ng(proxy)
 	elif [ "$pdnsd_process" -eq 6 ]; then
 		icount=$(busybox ps -w | grep -e naived-dns -e "chinadns-ng -b 127.0.0.1 -l $tmp_dns_port" | grep -v grep | wc -l)
-		if [ "$icount" -lt 1 ]; then #如果进程挂掉就重启它
+		if [ "$icount" -lt 1 ]; then # Restart if the process exits unexpectedly
 			logger -t "$NAME" "chinadns-ng $dnsserver tunnel error.restart!"
 			echolog "chinadns-ng $dnsserver tunnel error.restart!"
 			dnsserver=$(uci_get_by_type global chinadns_ng_tunnel_forward 8.8.4.4:53)
@@ -174,7 +174,7 @@ while [ "1" == "1" ]; do #死循环
 	#chinadns-ng(china)
 	if [ "$(uci -q get "dhcp.@dnsmasq[0]._unused_naived_changed")" = "1" ]; then
 		icount=$(busybox ps -w | grep $TMP_BIN_PATH/chinadns-ng | grep -v grep | wc -l)
-		if [ "$icount" -lt 1 ]; then #如果进程挂掉就重启它
+		if [ "$icount" -lt 1 ]; then # Restart if the process exits unexpectedly
 			logger -t "$NAME" "chinadns-ng tunnel error.restart!"
 			echolog "chinadns-ng tunnel error.restart!"
 			chinadns=$(uci_get_by_type global chinadns_forward)

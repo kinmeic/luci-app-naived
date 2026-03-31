@@ -23,7 +23,7 @@ end
 
 	function cbi_t_switch(section, tab) {
 		if( cbi_t[section] && cbi_t[section][tab] ) {
-			//在切换选项卡之前，先取消当前激活选项卡的全选状态
+			// Clear the current tab selection before switching tabs
 			dechecked_all_node();
 			var o = cbi_t[section][tab];
 			var h = document.getElementById('tab.' + section);
@@ -143,14 +143,14 @@ end
 
 	// set tr draggable
 	function enableDragForTable(table_selector, store) {
-		// 添加 CSS 样式
+		// Add CSS styles
 		const style = document.createElement("style");
 		style.textContent = `
 			tr[draggable="true"] {
 				cursor: move;
 				user-select: none;
 			}
-			/* 添加置顶和置底按钮的间距 */
+			/* Add spacing for the move-to-top and move-to-bottom buttons */
 			.cbi-button-top, 
 			.cbi-button-bottom {
 				margin-right: 4px;
@@ -175,9 +175,9 @@ end
 			ev.dataTransfer.dropEffect = "move";
 		}
 		
-		// 上移一行
+		// Move up one row
 		function moveUp(id) {
-			// 查找当前行的索引
+			// Find the index of the current row
 			var trList = document.querySelectorAll(table_selector + " tr");
 			var currentIndex = -1;
 			for (var i = 0; i < trList.length; i++) {
@@ -187,16 +187,16 @@ end
 				}
 			}
 			
-			// 如果不是第一行数据行，则上移一行
+			// Move the row up when it is not already the first data row
 			if (currentIndex > 1) {
 				var prevRow = trList[currentIndex - 1];
 				cbi_row_drop(id, prevRow.id, store);
 			}
 		}
 		
-		// 下移一行
+		// Move down one row
 		function moveDown(id) {
-			// 查找当前行的索引
+			// Find the index of the current row
 			var trList = document.querySelectorAll(table_selector + " tr");
 			var currentIndex = -1;
 			for (var i = 0; i < trList.length; i++) {
@@ -206,27 +206,27 @@ end
 				}
 			}
 			
-			// 如果不是最后一行，则下移一行
+			// Move the row down when it is not already the last row
 			if (currentIndex < trList.length - 1) {
 				var nextRow = trList[currentIndex + 1];
-				// 对于下移，我们需要将当前行插入到下一行的后面
+				// For downward moves, insert the current row after the next row
 				var nextNextRow = trList[currentIndex + 2];
 				if (nextNextRow) {
 					cbi_row_drop(id, nextNextRow.id, store, false);
 				} else {
-					// 如果是倒数第二行，移动到最后一行的后面
+					// If this is the second-to-last row, move it after the last row
 					cbi_row_drop(id, nextRow.id, store, true);
 				}
 			}
 		}
 		
-		// 置顶
+		// Move to top
 		function moveToTop(id) {
 			var top = document.querySelectorAll(table_selector + " tr")[1];
 			cbi_row_drop(id, top.id, store);
 		}
 		
-		// 置底
+		// Move to bottom
 		function moveToBottom(id) {
 			//console.log('moveToBottom:', id);
 			var trList = document.querySelectorAll(table_selector + " tr");
@@ -241,7 +241,7 @@ end
 			el.ondrop = ondrop;
 			el.ondragover = ondragover;
 			
-			// 上移和下移按钮
+			// Move up and move down buttons
 			var upBtns = el.querySelectorAll(".cbi-button.cbi-button-up");
 			if (upBtns && upBtns.length > 0) {
 				upBtns.forEach(function (_el) {
@@ -260,19 +260,19 @@ end
 				});
 			}
 			
-			// 添加置顶和置底按钮
+			// Add move-to-top and move-to-bottom buttons
 			var actionsCell = el.querySelector(".cbi-section-actions");
 			if (actionsCell) {
-				// 获取现有的按钮容器内的div
+				// Get the existing div inside the button container
 				var buttonDiv = actionsCell.querySelector("div");
         
-				// 如果按钮容器内没有div，则创建一个
+				// Create a div if the button container does not have one
 				if (!buttonDiv) {
 					buttonDiv = document.createElement("div");
 					actionsCell.appendChild(buttonDiv);
 				}
 
-				// 置顶按钮
+				// Move-to-top button
 				var toTopBtn = document.createElement("input");
 				toTopBtn.className = "btn cbi-button cbi-button-top";
 				toTopBtn.type = "button";
@@ -282,7 +282,7 @@ end
 					moveToTop(el.id);
 				};
 				
-				// 置底按钮
+				// Move-to-bottom button
 				var toBottomBtn = document.createElement("input");
 				toBottomBtn.className = "btn cbi-button cbi-button-bottom";
 				toBottomBtn.type = "button";
@@ -292,7 +292,7 @@ end
 					moveToBottom(el.id);
 				};
 				
-				// 将置顶和置底按钮插入到单元格的开头
+				// Insert the top and bottom buttons at the beginning of the cell
 				buttonDiv.insertBefore(toBottomBtn, buttonDiv.firstChild);
 				buttonDiv.insertBefore(toTopBtn, buttonDiv.firstChild);
 			}

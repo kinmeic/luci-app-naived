@@ -10,23 +10,23 @@ local icount = 0
 local args = arg[1]
 local uci = require "luci.model.uci".cursor()
 
--- 以下设置更新数据库至 DNSMASQ 配置路径
--- 获取 DNSMASQ 配置 ID
+-- Configure the DNSMASQ path used for database updates
+-- Get the DNSMASQ config ID
 local DNSMASQ_UCI_CONFIG = uci:get_first("dhcp", "dnsmasq", ".name")
 
--- 获取 DNSMASQ 默认配置文件
+-- Get the default DNSMASQ config file
 local DNSMASQ_CONF_PATH = "/tmp/etc/dnsmasq.conf." .. DNSMASQ_UCI_CONFIG
 
--- 检查 DNSMASQ 配置文件是否存在，如果存在则提取 conf-dir
+-- If the DNSMASQ config file exists, extract conf-dir
 for line in io.lines(DNSMASQ_CONF_PATH) do
     local conf_dir = line:match("^conf%-dir=(.+)")
     if conf_dir then
-        DNSMASQ_CONF_DIR = conf_dir:gsub("%s+", "") -- 去除空白字符
+        DNSMASQ_CONF_DIR = conf_dir:gsub("%s+", "") -- Remove whitespace
         break
     end
 end
 
--- 设置 dnsmasq-naived.d 目录路径，并去除路径末尾的斜杠
+-- Set the dnsmasq-naived.d directory path and trim the trailing slash
 local TMP_DNSMASQ_PATH = DNSMASQ_CONF_DIR:match("^(.-)/?$") .. "/dnsmasq-naived.d"
 
 local TMP_PATH = "/var/etc/naived"
@@ -76,7 +76,7 @@ local function check_excluded_domain(value)
 		end
 	end
 end
--- gfwlist转码至dnsmasq格式
+-- Convert gfwlist data to dnsmasq format
 local function generate_gfwlist(type)
     local domains, domains_map = {}, {}
     local out = io.open("/tmp/naived-update." .. type, "w")
@@ -97,7 +97,7 @@ local function generate_gfwlist(type)
     os.remove("/tmp/naived-update.tmp")
 end
 
--- 更换 Apple dns
+-- Rewrite Apple DNS rules
 local function generate_apple(type)
 	local domains, domains_map = {}, {}
 	local out = io.open("/tmp/naived-update." .. type, "w")
@@ -106,7 +106,7 @@ local function generate_apple(type)
 			local start, finish, match = string.find(line, domain_pattern)
 			if start and not domains_map[match] then
 				domains_map[match] = true
-				match = string.gsub(match, "%s", "") --从域名中去除所有空白字符
+				match = string.gsub(match, "%s", "") -- Remove all whitespace from the domain
 				table.insert(domains, match)
 			end
 		end
@@ -120,7 +120,7 @@ local function generate_apple(type)
 	os.remove("/tmp/naived-update.tmp")
 end
 
--- adblock转码至dnsmasq格式
+-- Convert ad-block data to dnsmasq format
 local function generate_adblock(type)
 	local domains, domains_map = {}, {}
 	local out = io.open("/tmp/naived-update." .. type, "w")
@@ -160,7 +160,7 @@ local function update(url, file, type, file2)
 				decode = base64_dec(decode)
 			end
 			gfwlist:close()
-			-- 写回gfwlist
+			-- Write back the decoded gfwlist
 				gfwlist = io.open("/tmp/naived-update.tmp", "w")
 			gfwlist:write(decode)
 			gfwlist:close()
@@ -174,7 +174,7 @@ local function update(url, file, type, file2)
 				decode = base64_dec(decode)
 			end
 			apple:close()
-			-- 写回applechina
+			-- Write back Apple China data
 				apple = io.open("/tmp/naived-update.tmp", "w")
 			apple:write(decode)
 			apple:close()
@@ -189,7 +189,7 @@ local function update(url, file, type, file2)
 				adblock:close()
 			else
 				adblock:close()
-				-- 写回adblock
+				-- Write back ad-block data
 					adblock = io.open("/tmp/naived-update.tmp", "w")
 				adblock:write(decode)
 				adblock:close()
@@ -202,7 +202,7 @@ local function update(url, file, type, file2)
 			if args then
 				log(1)
 			else
-				log("你已经是最新数据，无需更新！")
+				log("Data already up to date, no update needed!")
 			end
 		else
 			icount = luci.sys.exec("cat /tmp/naived-update." .. type .. " | wc -l")
@@ -220,14 +220,14 @@ local function update(url, file, type, file2)
 			if args then
 				log(0, tonumber(icount) / Num)
 			else
-				log("更新成功！ 新的总记录数：" .. tostring(tonumber(icount) / Num))
+				log("Update succeeded! New total record count: " .. tostring(tonumber(icount) / Num))
 			end
 		end
 	else
 		if args then
 			log(-1)
 		else
-			log("更新失败！")
+			log("Update failed!")
 		end
 	end
 	os.remove("/tmp/naived-update." .. type)
@@ -255,22 +255,22 @@ if args then
 		os.exit(0)
 	end
 else
-	log("正在更新【GFW列表】数据库")
+	log("Updating the GFW list database")
 	update(uci:get_first("naived", "global", "gfwlist_url"), "/etc/naived/gfw_list.conf", "gfw_data", TMP_DNSMASQ_PATH .. "/gfw_list.conf")
-	log("正在更新【国内IP段】数据库")
+	log("Updating the China IP database")
 	update(uci:get_first("naived", "global", "chnroute_url"), "/etc/naived/china_ip.txt", "ip_data", TMP_PATH .. "/china_ip.txt")
 	if uci:get_first("naived", "global", "apple_optimization", "0") == "1" then
-		log("正在更新【Apple域名】数据库")
+		log("Updating the Apple domain database")
 		update(uci:get_first("naived", "global", "apple_url"), "/etc/naived/applechina.conf", "apple_data", TMP_DNSMASQ_PATH .. "/applechina.conf")
 	end
 	if uci:get_first("naived", "global", "adblock", "0") == "1" then
-		log("正在更新【广告屏蔽】数据库")
+		log("Updating the ad-block database")
 		update(uci:get_first("naived", "global", "adblock_url"), "/etc/naived/ad.conf", "ad_data", TMP_DNSMASQ_PATH .. "/ad.conf")
 	end
 	if uci:get_first("naived", "global", "netflix_enable", "0") == "1" then
-		log("正在更新【Netflix IP段】数据库")
+		log("Updating the Netflix IP database")
 		update(uci:get_first("naived", "global", "nfip_url"), "/etc/naived/netflixip.list", "nfip_data", TMP_DNSMASQ_PATH .. "/netflixip.list")
 	end
-	-- log("正在更新【Netflix IP段】数据库")
+	-- log("Updating the Netflix IP database")
 	-- update(uci:get_first("naived", "global", "nfip_url"), "/etc/naived/netflixip.list", "nfip_data")
 end

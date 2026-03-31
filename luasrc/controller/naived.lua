@@ -168,7 +168,7 @@ function check_port()
 			server_name = s.server .. ":" .. s.server_port
 		end
 
-		-- 临时加入 set
+		-- Temporarily add the target to the set
 		local iret = false
 		if use_nft then
 			iret = luci.sys.call("nft add element inet ss_spec ss_spec_wan_ac { " .. s.server .. " } 2>/dev/null") == 0
@@ -176,7 +176,7 @@ function check_port()
 			iret = luci.sys.call("ipset add ss_spec_wan_ac " .. s.server .. " 2>/dev/null") == 0
 		end
 
-		-- TCP 测试
+		-- TCP connectivity test
 		local socket = nixio.socket("inet", "stream")
 		socket:setopt("socket", "rcvtimeo", 3)
 		socket:setopt("socket", "sndtimeo", 3)
@@ -189,7 +189,7 @@ function check_port()
 			retstring = retstring .. string.format("<font><b style='color:red'>[%s] Error.</b></font><br />", server_name)
 		end
 
-		-- 删除临时 set
+		-- Remove the temporary set entry
 		if iret then
 			if use_nft then
 				luci.sys.call("nft delete element inet ss_spec ss_spec_wan_ac { " .. s.server .. " } 2>/dev/null")

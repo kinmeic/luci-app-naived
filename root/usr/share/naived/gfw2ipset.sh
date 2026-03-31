@@ -22,7 +22,7 @@ netflix() {
 		rm -f /tmp/naived_netflix.list.clean
 	fi
 	if [ "$nft_support" = "1" ]; then
-		# 移除 ipset
+		# Replace ipset rules with nftset rules
 		cat /etc/naived/netflix.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$port\nnftset=\/&\/4#inet#ss_spec#netflix/" >$TMP_DNSMASQ_PATH/netflix_forward.conf
 	elif [ "$nft_support" = "0" ]; then
 		cat /etc/naived/netflix.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$port\nipset=\/&\/netflix/" >$TMP_DNSMASQ_PATH/netflix_forward.conf
@@ -49,17 +49,17 @@ for conf_file in gfw_base.conf gfw_list.conf; do
 			sed -i 's|ipset=/\([^/]*\)/\([^[:space:]]*\)|nftset=/\1/4#inet#ss_spec#\2|g' "$conf"
 		fi
 	else
-		# 非 gfw：无条件清理所有分流引用
+		# Non-GFW mode: always remove split-routing references
 		# sed -i '/^[[:space:]]*\(ipset=\|nftset=\)/d' "$conf"
 		sed -i '/^[[:space:]]*ipset=/d' "$conf"
 	fi
 done
 
 if [ "$(uci_get_by_type global netflix_enable 0)" == "1" ]; then
-	# 只有开启 NetFlix分流 才需要取值
+	# Only read the value when Netflix shunt is enabled
 	SHUNT_SERVER=$(uci_get_by_type global netflix_server nil)
 else
-	# 没有开启 设置为 nil
+	# Set to nil when the feature is disabled
 	SHUNT_SERVER=nil
 fi
 case "$SHUNT_SERVER" in
@@ -74,7 +74,7 @@ $(uci_get_by_type global global_server nil) | $switch_server | same)
 	;;
 esac
 
-# 此处使用 for 方式读取 防止 /etc/naived/ 目录下的 black.list white.list deny.list 等2个或多个文件一行中存在空格 比如:# abc.com 而丢失：server
+# Use a for-loop to process list files safely, even when entries contain spaces.
 # Optimize: Batch filter using grep
 for list_file in /etc/naived/black.list /etc/naived/white.list /etc/naived/deny.list; do
 	if [ -s "$list_file" ]; then
@@ -91,7 +91,7 @@ for list_file in /etc/naived/black.list /etc/naived/white.list /etc/naived/deny.
 	fi
 done
 
-# 此处直接使用 cat 因为有 sed '/#/d' 删除了 数据
+# Use cat here because comments have already been stripped by sed '/#/d'.
 if [ "$nft_support" = "1" ]; then
 	cat /etc/naived/black.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$dns_port\nnftset=\/&\/4#inet#ss_spec#blacklist/" >$TMP_DNSMASQ_PATH/blacklist_forward.conf
 	cat /etc/naived/white.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1\nnftset=\/&\/4#inet#ss_spec#whitelist/" >$TMP_DNSMASQ_PATH/whitelist_forward.conf
