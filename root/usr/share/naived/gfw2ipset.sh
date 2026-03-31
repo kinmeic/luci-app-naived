@@ -23,7 +23,7 @@ netflix() {
 	fi
 	if [ "$nft_support" = "1" ]; then
 		# 移除 ipset
-		cat /etc/naived/netflix.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$port\nnftset=\/&\/inet#ss_spec#netflix/" >$TMP_DNSMASQ_PATH/netflix_forward.conf
+		cat /etc/naived/netflix.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$port\nnftset=\/&\/4#inet#ss_spec#netflix/" >$TMP_DNSMASQ_PATH/netflix_forward.conf
 	elif [ "$nft_support" = "0" ]; then
 		cat /etc/naived/netflix.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$port\nipset=\/&\/netflix/" >$TMP_DNSMASQ_PATH/netflix_forward.conf
 	fi
@@ -46,7 +46,7 @@ for conf_file in gfw_base.conf gfw_list.conf; do
 	if [ "$run_mode" = "gfw" ]; then
 		if [ "$nft_support" = "1" ]; then
 			# gfw + nft：ipset → nftset
-			sed -i 's|ipset=/\([^/]*\)/\([^[:space:]]*\)|nftset=/\1/inet#ss_spec#\2|g' "$conf"
+			sed -i 's|ipset=/\([^/]*\)/\([^[:space:]]*\)|nftset=/\1/4#inet#ss_spec#\2|g' "$conf"
 		fi
 	else
 		# 非 gfw：无条件清理所有分流引用
@@ -93,8 +93,8 @@ done
 
 # 此处直接使用 cat 因为有 sed '/#/d' 删除了 数据
 if [ "$nft_support" = "1" ]; then
-	cat /etc/naived/black.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$dns_port\nnftset=\/&\/inet#ss_spec#blacklist/" >$TMP_DNSMASQ_PATH/blacklist_forward.conf
-	cat /etc/naived/white.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1\nnftset=\/&\/inet#ss_spec#whitelist/" >$TMP_DNSMASQ_PATH/whitelist_forward.conf
+	cat /etc/naived/black.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$dns_port\nnftset=\/&\/4#inet#ss_spec#blacklist/" >$TMP_DNSMASQ_PATH/blacklist_forward.conf
+	cat /etc/naived/white.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1\nnftset=\/&\/4#inet#ss_spec#whitelist/" >$TMP_DNSMASQ_PATH/whitelist_forward.conf
 elif [ "$nft_support" = "0" ]; then
 	cat /etc/naived/black.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1#$dns_port\nipset=\/&\/blacklist/" >$TMP_DNSMASQ_PATH/blacklist_forward.conf
 	cat /etc/naived/white.list | sed '/^$/d' | sed '/#/d' | sed "/.*/s/.*/server=\/&\/127.0.0.1\nipset=\/&\/whitelist/" >$TMP_DNSMASQ_PATH/whitelist_forward.conf
