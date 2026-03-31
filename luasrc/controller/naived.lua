@@ -115,7 +115,34 @@ end
 
 function check_status()
 	local e = {}
-	e.ret = luci.sys.call("tcping -q -c 1 -t 3 www." .. luci.http.formvalue("set") .. ".com 80")
+	local target = luci.http.formvalue("set")
+	local domain = "www." .. target .. ".com"
+	local ip = luci.sys.exec("resolveip -4 -t 3 " .. domain .. " 2>/dev/null | awk 'NR==1{print}'"):gsub("%s+$", "")
+	local use_nft = luci.sys.call("command -v nft >/dev/null 2>&1") == 0
+	local run_mode = luci.model.uci.cursor():get_first("naived", "global", "run_mode", "router")
+	local added = false
+
+	if ip ~= "" and target == "google" and run_mode == "gfw" then
+		if use_nft then
+			added = luci.sys.call("nft add element inet ss_spec gfwlist { " .. ip .. " } 2>/dev/null") == 0
+		else
+			added = luci.sys.call("ipset add gfwlist " .. ip .. " 2>/dev/null") == 0
+		end
+	end
+
+	if ip ~= "" then
+		e.ret = luci.sys.call("tcping -q -c 1 -t 3 " .. ip .. " 80 >/dev/null 2>&1")
+	else
+		e.ret = 1
+	end
+
+	if added then
+		if use_nft then
+			luci.sys.call("nft delete element inet ss_spec gfwlist { " .. ip .. " } 2>/dev/null")
+		else
+			luci.sys.call("ipset del gfwlist " .. ip .. " 2>/dev/null")
+		end
+	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)
 end
