@@ -137,7 +137,7 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-22.04
-    if: github.event_name != 'pull_request'
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag != '')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -163,7 +163,8 @@ jobs:
           elif [ -n "${{ github.event.inputs.release_tag }}" ]; then
             echo "value=${{ github.event.inputs.release_tag }}" >> "$GITHUB_OUTPUT"
           else
-            echo "value=openwrt24.10-x86_64-latest" >> "$GITHUB_OUTPUT"
+            echo "Unable to determine release tag." >&2
+            exit 1
           fi
 
       - name: Create or update release
