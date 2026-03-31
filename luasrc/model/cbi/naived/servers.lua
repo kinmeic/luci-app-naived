@@ -10,7 +10,7 @@ local uci = require "luci.model.uci".cursor()
 local m, s, o, node
 local server_count = 0
 
--- 确保正确判断程序是否存在
+-- Ensure correct judgment of program existence
 local function is_finded(e)
 	return luci.sys.exec(string.format('type -t -p "%s" 2>/dev/null', e)) ~= ""
 end

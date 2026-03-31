@@ -18,7 +18,7 @@ local socks_server = ucursor:get_all("naived", "@socks5_proxy[0]") or {}
 local node_id = server_section
 local remarks = server.alias or ""
 
--- 确保正确判断程序是否存在
+-- Ensure correct judgment of program existence
 local function is_finded(e)
 	return luci.sys.exec(string.format('type -t -p "%s" 2>/dev/null', e)) ~= ""
 end

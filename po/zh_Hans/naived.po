@@ -1,0 +1,826 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-naived\n"
+"POT-Creation-Date: 2026-03-31 13:21+0800\n"
+"PO-Revision-Date: 2026-03-31 13:21+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid ""
+"\"1-3\" is for segmentation at TCP layer, applying to the beginning 1 to 3 "
+"data writes by the client. \"tlshello\" is for TLS client hello packet "
+"fragmentation."
+msgstr ""
+"\"1-3\" 是在TCP层进行分段，适用于客户端开始1到3次数据写入。\"tlshello\" 是TLS客户端hello包分片。"
+
+msgid "%s Node Use Type"
+msgstr "%s节点使用类型"
+
+msgid "%s Node Use Version"
+msgstr "%s节点使用版本"
+
+msgid "1 Thread"
+msgstr "1线程"
+
+msgid "128 Threads"
+msgstr "128线程"
+
+msgid "16 Threads"
+msgstr "16线程"
+
+msgid "2 Threads"
+msgstr "2线程"
+
+msgid "32 Threads"
+msgstr "32线程"
+
+msgid "4 Threads"
+msgstr "4线程"
+
+msgid "64 Threads"
+msgstr "64线程"
+
+msgid "8 Threads"
+msgstr "8线程"
+
+msgid "Access Control"
+msgstr "访问控制"
+
+msgid "Advanced Settings"
+msgstr "高级设置"
+
+msgid "Alias"
+msgstr "别名"
+
+msgid "Alias(optional)"
+msgstr "别名（可选）"
+
+msgid "Allow all except listed"
+msgstr "允许除列表外的所有"
+
+msgid "Allow listed only"
+msgstr "仅允许列表中的"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Auto Switch"
+msgstr "自动切换"
+
+msgid "Auto Threads"
+msgstr "自动线程"
+
+msgid "Auto Update"
+msgstr "自动更新"
+
+msgid "Auto Update Server subscription, GFW list and CHN route"
+msgstr "自动更新服务器订阅、GFW列表和中国路由"
+
+msgid "Backup and Restore"
+msgstr "备份和恢复"
+
+msgid "Backup or Restore Client and Server Configurations."
+msgstr "备份或恢复客户端和服务器配置。"
+
+msgid "Black Domain List"
+msgstr "黑名单域名列表"
+
+msgid "Bypass Domain List"
+msgstr "绕过域名列表"
+
+msgid "Check Connect"
+msgstr "检查连接"
+
+msgid "Check Server"
+msgstr "检查服务器"
+
+msgid "Check Server Port"
+msgstr "检查服务器端口"
+
+msgid "Check..."
+msgstr "检查..."
+
+msgid "Clear logs"
+msgstr "清除日志"
+
+msgid "Collecting data..."
+msgstr "正在收集数据..."
+
+msgid "Configure XHTTP Extra Settings (JSON format), see:"
+msgstr "配置 XHTTP 额外设置（JSON格式），请参考："
+
+msgid "Connect Error"
+msgstr "连接错误"
+
+msgid "Connect OK"
+msgstr "连接成功"
+
+msgid "Connection Timeout"
+msgstr "连接超时"
+
+msgid "Create Backup File"
+msgstr "创建备份文件"
+
+msgid "Custom"
+msgstr "自定义"
+
+msgid "Custom DNS Server (support: IP:Port or tls://IP:Port or https://IP/dns-query and other format)."
+msgstr "自定义DNS服务器（支持：IP:Port 或 tls://IP:Port 或 https://IP/dns-query 等格式）。"
+
+msgid "Custom DNS Server format as IP:PORT (default: 8.8.4.4:53)"
+msgstr "自定义DNS服务器格式为 IP:PORT（默认：8.8.4.4:53）"
+
+msgid "Custom DNS Server format as IP:PORT (default: disabled)"
+msgstr "自定义DNS服务器格式为 IP:PORT（默认：禁用）"
+
+msgid "Custom DNS Server format as tcp://IP:PORT or tls://DOMAIN:PORT (tcp://8.8.8.8 or tls://dns.google:853)"
+msgstr "自定义DNS服务器格式为 tcp://IP:PORT 或 tls://DOMAIN:PORT（tcp://8.8.8.8 或 tls://dns.google:853）"
+
+msgid "Custom Plugin Path"
+msgstr "自定义插件路径"
+
+msgid "Custom Ports"
+msgstr "自定义端口"
+
+msgid "DNS"
+msgstr "DNS"
+
+msgid "DNS Anti-pollution"
+msgstr "DNS防污染"
+
+msgid "DNS Query Mode For Shunt Mode"
+msgstr "分流模式DNS查询模式"
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Deny Domain List"
+msgstr "拒绝域名列表"
+
+msgid "Disable"
+msgstr "禁用"
+
+msgid "Disable ChinaDNS-NG"
+msgstr "禁用ChinaDNS-NG"
+
+msgid "Do Reset"
+msgstr "执行重置"
+
+msgid "Do you want to restore the client to default settings?"
+msgstr "您想将客户端恢复到默认设置吗？"
+
+msgid "Domain Strategy"
+msgstr "域名策略"
+
+msgid "Domestic DNS Server"
+msgstr "国内DNS服务器"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Enable Auto Switch"
+msgstr "启用自动切换"
+
+msgid "Enable Server"
+msgstr "启用服务器"
+
+msgid "Enable adblock"
+msgstr "启用广告拦截"
+
+msgid "Encrypt Method"
+msgstr "加密方法"
+
+msgid "Enter Custom Ports"
+msgstr "输入自定义端口"
+
+msgid "Every Day"
+msgstr "每天"
+
+msgid "Every Friday"
+msgstr "每周五"
+
+msgid "Every Monday"
+msgstr "每周一"
+
+msgid "Every Saturday"
+msgstr "每周六"
+
+msgid "Every Sunday"
+msgstr "每周日"
+
+msgid "Every Thursday"
+msgstr "每周四"
+
+msgid "Every Tuesday"
+msgstr "每周二"
+
+msgid "Every Wednesday"
+msgstr "每周三"
+
+msgid "External Proxy Mode"
+msgstr "外部代理模式"
+
+msgid "Fragment"
+msgstr "分片"
+
+msgid "Fragment Interval"
+msgstr "分片间隔"
+
+msgid "Fragment Length"
+msgstr "分片长度"
+
+msgid "Fragment Packets"
+msgstr "分片包"
+
+msgid "Fragmentation interval (ms)"
+msgstr "分片间隔（毫秒）"
+
+msgid "Fragmented packet length (byte)"
+msgstr "分片包长度（字节）"
+
+msgid "Global Client"
+msgstr "全局客户端"
+
+msgid "Global Mode"
+msgstr "全局模式"
+
+msgid "Global SOCKS5 Proxy Server"
+msgstr "全局SOCKS5代理服务器"
+
+msgid "Global Setting"
+msgstr "全局设置"
+
+msgid "Google Public DNS"
+msgstr "谷歌公共DNS"
+
+msgid "Grant UCI access for luci-app-naived"
+msgstr "授予luci-app-naived的UCI访问权限"
+
+msgid "HTTP"
+msgstr "HTTP"
+
+msgid "HTTP Host"
+msgstr "HTTP主机"
+
+msgid "HTTP Path"
+msgstr "HTTP路径"
+
+msgid "HTTP/2 Host"
+msgstr "HTTP/2主机"
+
+msgid "HTTP/2 Path"
+msgstr "HTTP/2路径"
+
+msgid "Header"
+msgstr "头部"
+
+msgid "Health Check Timeout"
+msgstr "健康检查超时"
+
+msgid "Hysteria2"
+msgstr "Hysteria2"
+
+msgid "IP Route Mode"
+msgstr "IP路由模式"
+
+msgid "IP Type"
+msgstr "IP类型"
+
+msgid "Import"
+msgstr "导入"
+
+msgid "Import configuration information successfully."
+msgstr "成功导入配置信息。"
+
+msgid "Interface"
+msgstr "接口"
+
+msgid "Interface control"
+msgstr "接口控制"
+
+msgid "Invalid JSON format"
+msgstr "无效的JSON格式"
+
+msgid "Invalid format."
+msgstr "无效格式。"
+
+msgid "LAN Access Control"
+msgstr "局域网访问控制"
+
+msgid "LAN Bypassed Host List"
+msgstr "局域网绕过主机列表"
+
+msgid "LAN Force Proxy Host List"
+msgstr "局域网强制代理主机列表"
+
+msgid "LAN Host List"
+msgstr "局域网主机列表"
+
+msgid "LAN IP AC"
+msgstr "局域网IP访问控制"
+
+msgid "Local Port"
+msgstr "本地端口"
+
+msgid "Local Servers"
+msgstr "本地服务器"
+
+msgid "Local addresses"
+msgstr "本地地址"
+
+msgid "Log"
+msgstr "日志"
+
+msgid "Main Server"
+msgstr "主服务器"
+
+msgid "Move down"
+msgstr "下移"
+
+msgid "Move up"
+msgstr "上移"
+
+msgid "Multi"
+msgstr "多线程"
+
+msgid "Multi Threads Option"
+msgstr "多线程选项"
+
+msgid "Mux"
+msgstr "多路复用"
+
+msgid "NOT RUNNING"
+msgstr "未运行"
+
+msgid "NaiveProxy"
+msgstr "NaiveProxy"
+
+msgid "Naived"
+msgstr "Naived"
+
+msgid "Naived Settings"
+msgstr "Naived设置"
+
+msgid "Netflix Domain List"
+msgstr "Netflix域名列表"
+
+msgid "Netflix IP Only"
+msgstr "仅Netflix IP"
+
+msgid "Netflix Node"
+msgstr "Netflix节点"
+
+msgid "Network Tunnel"
+msgstr "网络隧道"
+
+msgid "Network interface to use"
+msgstr "要使用的网络接口"
+
+msgid "No Check"
+msgstr "不检查"
+
+msgid "No new data!"
+msgstr "没有新数据！"
+
+msgid "No specify upload file."
+msgstr "未指定上传文件。"
+
+msgid "None"
+msgstr "无"
+
+msgid "Not Running"
+msgstr "未运行"
+
+msgid "Not exist"
+msgstr "不存在"
+
+msgid "Obfs"
+msgstr "混淆"
+
+msgid "Obfs param (optional)"
+msgstr "混淆参数（可选）"
+
+msgid "Obfuscate password (optional)"
+msgstr "混淆密码（可选）"
+
+msgid "Obfuscation Password"
+msgstr "混淆密码"
+
+msgid "Obfuscation Type"
+msgstr "混淆类型"
+
+msgid "Only Common Ports"
+msgstr "仅常用端口"
+
+msgid "Oversea Mode"
+msgstr "海外模式"
+
+msgid "Packet"
+msgstr "数据包"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Paste sharing link here"
+msgstr "在此粘贴分享链接"
+
+msgid "Ping Latency"
+msgstr "Ping延迟"
+
+msgid "Plugin Opts"
+msgstr "插件选项"
+
+msgid "Port Hopping Interval(Unit:Second)"
+msgstr "端口跳跃间隔（单位：秒）"
+
+msgid "Port hopping range"
+msgstr "端口跳跃范围"
+
+msgid "Pre-connections"
+msgstr "预连接"
+
+msgid "Prefer firewall tools"
+msgstr "首选防火墙工具"
+
+msgid "Private key"
+msgstr "私钥"
+
+msgid "Protocol"
+msgstr "协议"
+
+msgid "Protocol param (optional)"
+msgstr "协议参数（可选）"
+
+msgid "Proxy Ports"
+msgstr "代理端口"
+
+msgid "Public key"
+msgstr "公钥"
+
+msgid "QUIC Security"
+msgstr "QUIC安全"
+
+msgid "REALITY"
+msgstr "REALITY"
+
+msgid "RST Backup"
+msgstr "恢复备份"
+
+msgid "RUNNING"
+msgstr "运行中"
+
+msgid "Read Buffer Size"
+msgstr "读缓冲区大小"
+
+msgid "Really reset all changes?"
+msgstr "真的要重置所有更改吗？"
+
+msgid "Reapply"
+msgstr "重新应用"
+
+msgid "Records"
+msgstr "记录"
+
+msgid "Redirect traffic to this network interface"
+msgstr "将流量重定向到此网络接口"
+
+msgid "Refresh Data"
+msgstr "刷新数据"
+
+msgid "Refresh Error!"
+msgstr "刷新错误！"
+
+msgid "Refresh OK!"
+msgstr "刷新成功！"
+
+msgid "Refresh..."
+msgstr "刷新..."
+
+msgid "Regular update (Hour)"
+msgstr "定期更新（小时）"
+
+msgid "Regular update (Min)"
+msgstr "定期更新（分钟）"
+
+msgid "Reset complete"
+msgstr "重置完成"
+
+msgid "Reset to defaults"
+msgstr "重置为默认值"
+
+msgid "Restart Service"
+msgstr "重启服务"
+
+msgid "Restart Naived"
+msgstr "重启Naived"
+
+msgid "Restore Backup File"
+msgstr "恢复备份文件"
+
+msgid "Restore to default configuration"
+msgstr "恢复为默认配置"
+
+msgid "Running"
+msgstr "运行中"
+
+msgid "Running Mode"
+msgstr "运行模式"
+
+msgid "SSR Client"
+msgstr "SSR客户端"
+
+msgid "SSR Server"
+msgstr "SSR服务器"
+
+msgid "Same as Global Server"
+msgstr "与全局服务器相同"
+
+msgid "Server"
+msgstr "服务器"
+
+msgid "Server Address"
+msgstr "服务器地址"
+
+msgid "Server Count"
+msgstr "服务器数量"
+
+msgid "Server Node Type"
+msgstr "服务器节点类型"
+
+msgid "Server Port"
+msgstr "服务器端口"
+
+msgid "Server Setting"
+msgstr "服务器设置"
+
+msgid "Server Type"
+msgstr "服务器类型"
+
+msgid "Servers Nodes"
+msgstr "服务器节点"
+
+msgid "Servers subscription and manage"
+msgstr "服务器订阅和管理"
+
+msgid "ShadowSocks"
+msgstr "ShadowSocks"
+
+msgid "ShadowSocks-libev Version"
+msgstr "ShadowSocks-libev版本"
+
+msgid "ShadowSocks-rust Version"
+msgstr "ShadowSocks-rust版本"
+
+msgid "Shadowsocks password"
+msgstr "Shadowsocks密码"
+
+msgid "ShadowsocksR"
+msgstr "ShadowsocksR"
+
+msgid "Socks"
+msgstr "Socks"
+
+msgid "Socks Version"
+msgstr "Socks版本"
+
+msgid "Socks5"
+msgstr "Socks5"
+
+msgid "Socks5 Auth Mode"
+msgstr "Socks5认证模式"
+
+msgid "Socks5 Password"
+msgstr "Socks5密码"
+
+msgid "Socks5 User"
+msgstr "Socks5用户"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Switch check cycly(second)"
+msgstr "切换检查周期（秒）"
+
+msgid "TCP Fast Open"
+msgstr "TCP快速打开"
+
+msgid "TLS"
+msgstr "TLS"
+
+msgid "TLS 1.3 Strict mode"
+msgstr "TLS 1.3严格模式"
+
+msgid "TLS ALPN"
+msgstr "TLS ALPN"
+
+msgid "TLS Certificate Name (CertName)"
+msgstr "TLS证书名称（CertName）"
+
+msgid "TLS Chain Fingerprint (SHA256)"
+msgstr "TLS链指纹（SHA256）"
+
+msgid "TLS Host"
+msgstr "TLS主机"
+
+msgid "TUIC"
+msgstr "TUIC"
+
+msgid "TUIC ALPN"
+msgstr "TUIC ALPN"
+
+msgid "TUIC Server IP Address"
+msgstr "TUIC服务器IP地址"
+
+msgid "TUIC User Password"
+msgstr "TUIC用户密码"
+
+msgid "TUIC User UUID"
+msgstr "TUIC用户UUID"
+
+msgid "To Bottom"
+msgstr "到底部"
+
+msgid "To Top"
+msgstr "到顶部"
+
+msgid "Total Records:"
+msgstr "总记录数："
+
+msgid "Transport"
+msgstr "传输"
+
+msgid "Transport Protocol"
+msgstr "传输协议"
+
+msgid "Trojan"
+msgstr "Trojan"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "UDP"
+msgstr "UDP"
+
+msgid "UDP over TCP"
+msgstr "UDP over TCP"
+
+msgid "UDP relay mode"
+msgstr "UDP中继模式"
+
+msgid "UL Restore"
+msgstr "上传恢复"
+
+msgid "Unable to copy SSR to clipboard."
+msgstr "无法复制SSR到剪贴板。"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Update cycle (Day/Week)"
+msgstr "更新周期（天/周）"
+
+msgid "Upload"
+msgstr "上传"
+
+msgid "Use ChinaDNS-NG query and cache"
+msgstr "使用ChinaDNS-NG查询和缓存"
+
+msgid "Use DNS List File"
+msgstr "使用DNS列表文件"
+
+msgid "Use DNS from WAN"
+msgstr "使用WAN的DNS"
+
+msgid "Use DNS from WAN and 114DNS"
+msgstr "使用WAN和114DNS"
+
+msgid "Use DNS2SOCKS query and cache"
+msgstr "使用DNS2SOCKS查询和缓存"
+
+msgid "Use DNS2SOCKS-RUST query and cache"
+msgstr "使用DNS2SOCKS-RUST查询和缓存"
+
+msgid "Use DNS2TCP query"
+msgstr "使用DNS2TCP查询"
+
+msgid "Use DNSPROXY query and cache"
+msgstr "使用DNSPROXY查询和缓存"
+
+msgid "Use Local DNS Service listen port 5335"
+msgstr "使用本地DNS服务监听端口5335"
+
+msgid "Use MosDNS query"
+msgstr "使用MosDNS查询"
+
+msgid "User cancelled."
+msgstr "用户取消。"
+
+msgid "User-Agent"
+msgstr "用户代理"
+
+msgid "Username"
+msgstr "用户名"
+
+msgid "Users Authentication"
+msgstr "用户认证"
+
+msgid "VLESS"
+msgstr "VLESS"
+
+msgid "VLESS Encryption"
+msgstr "VLESS加密"
+
+msgid "VMess"
+msgstr "VMess"
+
+msgid "Vmess Protocol"
+msgstr "Vmess协议"
+
+msgid "Vmess UUID"
+msgstr "Vmess UUID"
+
+msgid "Vmess/VLESS ID (UUID)"
+msgstr "Vmess/VLESS ID（UUID）"
+
+msgid "WAN Force Proxy IP"
+msgstr "WAN强制代理IP"
+
+msgid "WAN IP AC"
+msgstr "WAN IP访问控制"
+
+msgid "WAN White List IP"
+msgstr "WAN白名单IP"
+
+msgid "WebSocket Host"
+msgstr "WebSocket主机"
+
+msgid "WebSocket Path"
+msgstr "WebSocket路径"
+
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgid "Write Buffer Size"
+msgstr "写缓冲区大小"
+
+msgid "XHTTP Extra"
+msgstr "XHTTP额外"
+
+msgid "XHTTP Host"
+msgstr "XHTTP主机"
+
+msgid "XHTTP Mode"
+msgstr "XHTTP模式"
+
+msgid "XHTTP Path"
+msgstr "XHTTP路径"
+
+msgid "aes-128-gcm"
+msgstr "aes-128-gcm"
+
+msgid "allow"
+msgstr "允许"
+
+msgid "allowInsecure"
+msgstr "允许不安全"
+
+msgid "chacha20-poly1305"
+msgstr "chacha20-poly1305"
+
+msgid "disable"
+msgstr "禁用"
+
+msgid "fastest_addr"
+msgstr "最快地址"
+
+msgid "load_balance"
+msgstr "负载均衡"
+
+msgid "none"
+msgstr "无"
+
+msgid "parallel"
+msgstr "并行"
+
+msgid "random"
+msgstr "随机"
+
+msgid "randomized"
+msgstr "随机化"
+
+msgid "reject"
+msgstr "拒绝"
+
+msgid "skip"
+msgstr "跳过"
+
+msgid "valid address:port"
+msgstr "有效地址:端口"
+
+msgid "warning! Please do not reuse the port!"
+msgstr "警告！请不要重复使用端口！"
