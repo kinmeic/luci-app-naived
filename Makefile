@@ -4,7 +4,7 @@ LUCI_TITLE:=luci-app-naived
 LUCI_PKGARCH:=all
 PKG_NAME:=luci-app-naived
 PKG_VERSION:=249
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_Nftables_Transparent_Proxy \
@@ -22,7 +22,6 @@ LUCI_DEPENDS:= \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ChinaDNS_NG:chinadns-ng \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_DNSPROXY:dnsproxy \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy:naiveproxy
-
 
 define Package/$(PKG_NAME)/config
 select PACKAGE_luci-lua-runtime if PACKAGE_$(PKG_NAME)
@@ -50,12 +49,16 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy
 
 endef
 
-
 define Package/$(PKG_NAME)/conffiles
 /etc/config/naived
 /etc/naived/
 endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
+
+define Package/luci-app-naived/install
+	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
+	$(INSTALL_DATA) ./po/zh_Hans/naived.po $(1)/usr/lib/lua/luci/i18n/naived.zh_Hans.po
+endef
 
 # call BuildPackage - OpenWrt buildroot signature
